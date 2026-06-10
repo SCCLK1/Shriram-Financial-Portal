@@ -860,8 +860,9 @@ TOOLS_METADATA = [
         "port": None,
         "category": "ANALYTICS",
         "icon": "chart-line",
-        "tags": ["Options", "Greeks", "Coming Soon"],
-        "status": "coming-soon"
+        "tags": ["Options", "Greeks"],
+        "status": "coming-soon",
+        "release": "Q3 2026"
     },
     {
         "id": "portfolio-optimizer",
@@ -871,8 +872,9 @@ TOOLS_METADATA = [
         "port": None,
         "category": "ANALYTICS",
         "icon": "briefcase",
-        "tags": ["Optimization", "MPT", "Coming Soon"],
-        "status": "coming-soon"
+        "tags": ["Optimization", "MPT"],
+        "status": "coming-soon",
+        "release": "Q4 2026"
     }
 ]
 

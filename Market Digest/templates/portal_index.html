@@ -318,15 +318,125 @@ body {
 }
 
 .tool-icon-wrapper {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   background: var(--bg);
-  border-radius: 10px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   font-size: 20px;
-  margin-bottom: 16px;
+  flex-shrink: 0;
 }
+.tool-icon-wrapper.tint-live { background: rgba(247,181,0,0.16); color: #A66A00; }
+.tool-icon-wrapper.tint-soon { background: rgba(0,0,0,0.04); color: #6E6E73; }
+
+/* ── Marketplace header eyebrow ── */
+.header-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  margin-bottom: 6px;
+}
+
+/* ── Search + filter toolbar ── */
+.mkt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 2px 0 22px;
+  flex-wrap: wrap;
+}
+.mkt-search {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 16px;
+  color: var(--text-muted);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.mkt-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(247,181,0,0.12);
+}
+.mkt-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text);
+}
+.mkt-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.mkt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.mkt-pill:hover { border-color: var(--text-muted); }
+.mkt-pill.active { background: #1D1D1F; color: #fff; border-color: #1D1D1F; }
+.pill-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.06);
+  padding: 1px 7px;
+  border-radius: 99px;
+}
+.mkt-pill.active .pill-count { background: rgba(255,255,255,0.20); }
+
+/* ── Card head + status badges ── */
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.tool-status.live {
+  color: #15803D;
+  background: rgba(34,197,94,0.10);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.tool-release {
+  font-size: 11px;
+  font-weight: 600;
+  color: #48484A;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Empty state ── */
+.mkt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 20px;
+  color: var(--text-muted);
+}
+.mkt-empty svg { opacity: 0.4; }
+.mkt-empty p { font-size: 14px; }
 
 .tool-title {
   font-family: var(--font-display);
@@ -684,8 +794,9 @@ body {
     <!-- Top Header -->
     <header class="top-header" id="portal-header">
       <div class="header-title">
-        <h1 id="portal-title">Shriram Market Portal</h1>
-        <p id="portal-subtitle">Select and run local financial reporting and valuation tools.</p>
+        <span class="header-eyebrow" id="portal-eyebrow">Main Portal</span>
+        <h1 id="portal-title">Market Portal</h1>
+        <p id="portal-subtitle">Select and run financial reporting and valuation tools. Live apps run locally; upcoming tools can notify you on release.</p>
       </div>
       <div class="header-actions">
         <button class="menu-btn" onclick="loadToolsData()" title="Refresh status" style="padding: 8px 12px;">
@@ -697,8 +808,26 @@ body {
 
     <!-- Marketplace Grid View -->
     <section class="view-panel active" id="view-marketplace">
+
+      <!-- Search + filter toolbar -->
+      <div class="mkt-toolbar">
+        <div class="mkt-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="mkt-search" placeholder="Search tools, tags, categories…" autocomplete="off" oninput="renderMarketplace()">
+        </div>
+        <div class="mkt-filters" id="mkt-filters">
+          <button class="mkt-pill active" data-filter="all" onclick="setMarketFilter('all')">All <span class="pill-count" id="count-all">0</span></button>
+          <button class="mkt-pill" data-filter="online" onclick="setMarketFilter('online')">Live <span class="pill-count" id="count-online">0</span></button>
+          <button class="mkt-pill" data-filter="coming-soon" onclick="setMarketFilter('coming-soon')">Coming soon <span class="pill-count" id="count-coming-soon">0</span></button>
+        </div>
+      </div>
+
       <div class="marketplace-grid" id="marketplace-grid">
         <!-- Rendered dynamically -->
+      </div>
+      <div class="mkt-empty" id="mkt-empty" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>No tools match your search.</p>
       </div>
     </section>
 
@@ -976,53 +1105,86 @@ function getToolIconSVG(key) {
   return icons[key] || '';
 }
 
+let marketFilter = 'all';
+
+function setMarketFilter(f) {
+  marketFilter = f;
+  document.querySelectorAll('.mkt-pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.filter === f));
+  renderMarketplace();
+}
+
+function toolMatchesSearch(t, q) {
+  if (!q) return true;
+  const hay = [t.name, t.description, t.category, ...(t.tags || [])].join(' ').toLowerCase();
+  return hay.includes(q);
+}
+
 function renderMarketplace() {
   const grid = $('#marketplace-grid');
+  if (!grid) return;
+  const q = (($('#mkt-search') || {}).value || '').trim().toLowerCase();
+
+  // Counts respect the search query but not the active status filter.
+  const searched = toolsData.filter(t => toolMatchesSearch(t, q));
+  const online = searched.filter(t => t.status === 'online').length;
+  const coming = searched.filter(t => t.status === 'coming-soon').length;
+  if ($('#count-all')) $('#count-all').textContent = searched.length;
+  if ($('#count-online')) $('#count-online').textContent = online;
+  if ($('#count-coming-soon')) $('#count-coming-soon').textContent = coming;
+
+  const visible = searched.filter(t =>
+    marketFilter === 'all' ? true
+    : marketFilter === 'online' ? t.status === 'online'
+    : t.status === 'coming-soon');
+
   grid.innerHTML = '';
-  
-  toolsData.forEach(t => {
+  const empty = $('#mkt-empty');
+  if (empty) empty.style.display = visible.length ? 'none' : 'flex';
+
+  visible.forEach(t => {
     const card = document.createElement('div');
-    const isGold = t.id === 'samc-micro-digest';
-    const accentClass = isGold ? 'indices-card' : (t.status === 'coming-soon' ? 'coming-soon-card' : 'reports-card');
-    card.className = `tool-card ${accentClass}`;
-    
+    card.className = 'tool-card';
     const isOnline = t.status === 'online';
     const isComing = t.status === 'coming-soon';
-    
-    let statusBadge = '';
+
+    let badge;
+    if (isOnline) badge = `<span class="tool-status live"><span class="status-dot"></span>LIVE</span>`;
+    else if (isComing) badge = `<span class="tool-release">${t.release || 'Soon'}</span>`;
+    else badge = `<span class="tool-status offline"><span class="status-dot"></span>Offline</span>`;
+
+    let actionBtn;
     if (isOnline) {
-      statusBadge = `<span class="tool-status online"><span class="status-dot"></span>Online</span>`;
+      actionBtn = `<button class="btn btn-gold" onclick="launchTool('${t.id}')">Launch app <span aria-hidden="true">→</span></button>`;
     } else if (isComing) {
-      statusBadge = `<span class="tool-status coming-soon"><span class="status-dot"></span>Coming Soon</span>`;
-    } else {
-      statusBadge = `<span class="tool-status offline"><span class="status-dot"></span>Offline</span>`;
-    }
-    
-    let actionBtn = '';
-    if (isOnline) {
-      actionBtn = `<button class="btn ${isGold ? 'btn-gold' : 'btn-primary'}" onclick="launchTool('${t.id}')">Launch App</button>`;
-    } else if (isComing) {
-      actionBtn = `<button class="btn" disabled>Coming Soon</button>`;
+      actionBtn = `<button class="btn btn-notify" onclick="notifyMe('${t.id}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notify me on release</button>`;
     } else {
       actionBtn = `<button class="btn" onclick="showOfflineInstructions('${t.id}')">Offline (Setup Info)</button>`;
     }
 
-    const tagsHtml = t.tags.map(tag => `<span class="tool-tag">${tag}</span>`).join('');
-    
+    const tint = isComing ? 'tint-soon' : 'tint-live';
+    const tagsHtml = (t.tags || []).map(tag => `<span class="tool-tag">${tag}</span>`).join('');
+
     card.innerHTML = `
-      <div class="card-top">
-        <span class="tool-category">${t.category}</span>
-        ${statusBadge}
+      <div class="card-head">
+        <div class="tool-icon-wrapper ${tint}">${getToolIconSVG(t.icon)}</div>
+        ${badge}
       </div>
-      <div class="tool-icon-wrapper">${getToolIconSVG(t.icon)}</div>
       <h3 class="tool-title">${t.name}</h3>
       <p class="tool-desc">${t.description}</p>
       <div class="tool-tags">${tagsHtml}</div>
       ${actionBtn}
     `;
-    
     grid.appendChild(card);
   });
+}
+
+function notifyMe(id) {
+  const t = toolsData.find(x => x.id === id);
+  if (!t) return;
+  toast(`We'll notify you when ${t.name} launches${t.release ? ' (' + t.release + ')' : ''}.`);
 }
 
 function launchTool(id) {
