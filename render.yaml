@@ -1,7 +1,7 @@
 services:
   - type: web
     name: shriram-financial-portal
-    env: docker
+    runtime: docker
     dockerfilePath: Dockerfile
     plan: starter # Starter plan or higher is required to attach persistent disks on Render
     region: oregon
@@ -12,6 +12,10 @@ services:
         value: /data/database.db
       - key: CONFIG_PATH
         value: /data/config.json
+      - key: MARKET_DIGEST_CHROME
+        value: /usr/bin/google-chrome
+      - key: SECRET_KEY
+        generateValue: true
     disk:
       name: portal-data
       mountPath: /data

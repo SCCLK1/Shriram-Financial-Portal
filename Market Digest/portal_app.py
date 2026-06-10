@@ -28,7 +28,7 @@ TEMPLATES = BASE_PORTAL / "templates"
 STATIC = BASE_PORTAL / "static"
 
 app = Flask(__name__, template_folder=str(TEMPLATES))
-app.secret_key = "shriram_marketplace_secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "shriram_marketplace_secret_key")
 
 # Initialize database
 db_helper.init_db()
@@ -250,6 +250,7 @@ def _samc_render_png(card_type: str) -> Path:
         "--headless=new",
         "--disable-gpu",
         "--no-sandbox",
+        "--disable-dev-shm-usage",
         "--hide-scrollbars",
         "--window-size=540,1200",
         f"--screenshot={png_file}",
@@ -478,6 +479,7 @@ def _md_render_pdf() -> Path:
         "--headless=new",
         "--disable-gpu",
         "--no-sandbox",
+        "--disable-dev-shm-usage",
         "--no-pdf-header-footer",
         "--hide-scrollbars",
         "--virtual-time-budget=20000",
@@ -511,6 +513,7 @@ def _md_render_png(card_type: str) -> Path:
         "--headless=new",
         "--disable-gpu",
         "--no-sandbox",
+        "--disable-dev-shm-usage",
         "--hide-scrollbars",
         "--window-size=540,1200",
         f"--screenshot={png_file}",

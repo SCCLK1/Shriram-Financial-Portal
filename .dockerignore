@@ -1,0 +1,23 @@
+# Python
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.pyc
+
+# Local data / generated output (recreated at runtime; secrets live on the mounted disk)
+**/output/
+**/outputs/
+**/*.db
+**/*.log
+**/.teams_token_cache.json
+**/config.json
+**/pdf_pages/
+**/ref_pages/
+
+# Design assets / docs not needed at runtime
+**/.design-pkg/
+
+# VCS / tooling
+.git/
+.gitignore
+.claude/
