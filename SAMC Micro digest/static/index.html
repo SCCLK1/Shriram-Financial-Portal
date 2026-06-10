@@ -406,21 +406,52 @@ body::before {
   background: radial-gradient(circle at 50% 10%, rgba(247,181,0,0.02) 0%, transparent 60%);
   pointer-events: none;
 }
+/* Side-by-side card grid */
+.preview-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+.card-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.card-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 270px;
+  gap: 8px;
+}
+.card-panel-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+.card-panel-actions { display: flex; gap: 6px; }
 .preview-frame {
   position: relative;
-  display: none;
-  height: 100%;
+  width: 270px;
+  height: 600px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 60px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
 }
-.preview-frame.active { display: block; }
 .preview-frame iframe {
   width: 540px;
   height: 1200px;
   border: none;
-  border-radius: 12px;
   background: #fff;
-  transform: scale(0.7);
-  transform-origin: top center;
-  box-shadow: 0 12px 60px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  transform: scale(0.5);
+  transform-origin: top left;
   pointer-events: none;
 }
 .preview-empty {
@@ -429,9 +460,11 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  height: 400px;
+  height: 100%;
+  padding: 16px;
+  text-align: center;
   color: var(--text-3);
-  font-size: 13.5px;
+  font-size: 13px;
 }
 .preview-empty svg { opacity: 0.25; }
 
@@ -753,11 +786,13 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 }
 @media (max-width: 600px) {
   .preview-frame iframe {
-    transform: scale(0.55);
+    transform: scale(0.5);
+    transform-origin: top left;
   }
   .preview-viewport {
     min-height: 440px;
   }
+  .preview-grid { gap: 18px; }
 }
 @media (max-width: 480px) {
   .config-drawer {
@@ -770,7 +805,8 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 }
 @media (max-width: 400px) {
   .preview-frame iframe {
-    transform: scale(0.48);
+    transform: scale(0.5);
+    transform-origin: top left;
   }
 }
 </style>
@@ -900,39 +936,64 @@ textarea.field-input { resize: vertical; min-height: 70px; }
     <section class="page active" id="page-dashboard">
       <div class="preview-container">
         <div class="preview-toolbar">
-          <div class="preview-tabs">
-            <button class="preview-tab active" data-card="indices" onclick="switchPreviewTab(this)">Indices Card</button>
-            <button class="preview-tab" data-card="news" onclick="switchPreviewTab(this)">News Card</button>
-          </div>
+          <span class="card-panel-title" style="font-size:13px;">Card Preview</span>
           <div class="preview-actions">
-            <button class="btn btn-icon" onclick="shareCard(document.querySelector('.preview-tab.active').dataset.card)" title="Share to WhatsApp / Mobile">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            </button>
-            <a class="btn btn-icon" id="dl-indices-png" href="card/indices.png" target="_blank" title="Download PNG">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <a class="btn btn-icon" id="dl-news-png" href="card/news.png" target="_blank" title="Download PNG" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <button class="btn btn-icon" onclick="reloadPreview(document.querySelector('.preview-tab.active').dataset.card)" title="Reload preview">
+            <button class="btn btn-icon" onclick="reloadPreview('indices'); reloadPreview('news');" title="Reload both previews">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 113 5.5M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
         </div>
         <div class="preview-viewport">
-          <!-- Indices frame -->
-          <div class="preview-frame active" id="frame-indices">
-            <div class="preview-empty" id="empty-indices">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 15l5-5 3 3 5-5 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Click <strong>Generate Cards</strong> to create preview
+          <div class="preview-grid">
+
+            <!-- Indices card -->
+            <div class="card-panel">
+              <div class="card-panel-head">
+                <span class="card-panel-title">Indices Card</span>
+                <div class="card-panel-actions">
+                  <button class="btn btn-icon" onclick="copyCard('indices')" title="Copy image to clipboard">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                  <a class="btn btn-icon" href="card/indices.png" target="_blank" title="Download PNG">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                  <button class="btn btn-icon" onclick="shareCard('indices')" title="Share to WhatsApp / Mobile">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="preview-frame" id="frame-indices">
+                <div class="preview-empty" id="empty-indices">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 15l5-5 3 3 5-5 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Click <strong>Generate Cards</strong>
+                </div>
+              </div>
             </div>
-          </div>
-          <!-- News frame -->
-          <div class="preview-frame" id="frame-news">
-            <div class="preview-empty" id="empty-news">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h5M8 16h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              Click <strong>Generate Cards</strong> to create preview
+
+            <!-- News card -->
+            <div class="card-panel">
+              <div class="card-panel-head">
+                <span class="card-panel-title">News Card</span>
+                <div class="card-panel-actions">
+                  <button class="btn btn-icon" onclick="copyCard('news')" title="Copy image to clipboard">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                  <a class="btn btn-icon" href="card/news.png" target="_blank" title="Download PNG">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                  <button class="btn btn-icon" onclick="shareCard('news')" title="Share to WhatsApp / Mobile">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="preview-frame" id="frame-news">
+                <div class="preview-empty" id="empty-news">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h8M8 12h5M8 16h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  Click <strong>Generate Cards</strong>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -1316,22 +1377,35 @@ async function shareCard(type) {
   }
 }
 
-function switchPreviewTab(btn) {
-  // Update tab buttons
-  document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  const card = btn.dataset.card;
-
-  // Switch visible frame
-  document.querySelectorAll('.preview-frame').forEach(f => f.classList.remove('active'));
-  const target = $(`#frame-${card}`);
-  if (target) target.classList.add('active');
-
-  // Switch download link visibility
-  const dlIndices = $('#dl-indices-png');
-  const dlNews = $('#dl-news-png');
-  if (dlIndices) dlIndices.style.display = card === 'indices' ? '' : 'none';
-  if (dlNews) dlNews.style.display = card === 'news' ? '' : 'none';
+async function copyCard(type) {
+  const label = type.charAt(0).toUpperCase() + type.slice(1);
+  try {
+    // Build the ClipboardItem with a promise so the user-gesture context is kept
+    // while the server renders the PNG (Chrome screenshot may take a moment).
+    const url = `card/${type}.png?_t=${Date.now()}`;
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        'image/png': fetch(url).then(r => {
+          if (!r.ok) throw new Error('Card not ready — generate first');
+          return r.blob();
+        })
+      })
+    ]);
+    toast(`${label} card copied to clipboard!`, 'success');
+    log(`Copied ${type} card to clipboard.`, 'ok');
+  } catch (err) {
+    // Fallback: fetch then write (covers browsers without promise-based ClipboardItem)
+    try {
+      const resp = await fetch(`card/${type}.png?_t=${Date.now()}`);
+      if (!resp.ok) throw new Error('Card not ready');
+      const blob = await resp.blob();
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      toast(`${label} card copied to clipboard!`, 'success');
+    } catch (e2) {
+      toast('Copy failed — try the Download button instead.', 'error');
+      log(`Copy failed: ${e2.message}`, 'err');
+    }
+  }
 }
 
 /* ─── Generate ─── */

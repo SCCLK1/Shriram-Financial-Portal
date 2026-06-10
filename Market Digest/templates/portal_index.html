@@ -1397,7 +1397,11 @@ async function uploadCompanyLogo(companyId, input) {
     });
     const res = await r.json();
     if (res.ok) {
-      toast(`Logo updated for Shriram ${companyId.toUpperCase()}!`);
+      if (res.is_active === false) {
+        toast(`Logo saved for ${companyId.toUpperCase()}, but the ACTIVE company is "${(res.active_company || '').toUpperCase()}" — switch the active company for it to show on the cards.`);
+      } else {
+        toast(`Logo updated for Shriram ${companyId.toUpperCase()}! Cards refreshed.`);
+      }
       $(`#logo-img-${companyId}`).src = `/logo.jpeg?c=${companyId}&v=${Date.now()}`;
       const activeCard = $(`.company-logo-card#logo-card-${companyId}`);
       if (activeCard.classList.contains('active')) {
