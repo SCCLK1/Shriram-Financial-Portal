@@ -205,6 +205,9 @@ def _samc_apply_overrides(data: dict, cfg: dict) -> dict:
 
     def _float(k: str):
         v = ov.get(k, "")
+        if isinstance(v, str):
+            # Tolerate thousands separators and currency symbols (e.g. "82,450", "₹1,200", "$78.5").
+            v = v.replace(",", "").replace("₹", "").replace("$", "").strip()
         try:
             return float(v) if v != "" else None
         except Exception:
@@ -386,10 +389,20 @@ def samc_api_publish():
         webhook_url = body["webhook_url"]
     if not webhook_url:
         return jsonify({"error": "Webhook URL is not configured."}), 400
+    # Generating deletes the PNGs, so render them on demand before publishing
+    # (cached if already fresh) — avoids "PNG files not found" when the user skips
+    # the manual "Render PNGs" step.
+    try:
+        _samc_render_png("indices")
+        _samc_render_png("news")
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": "Generate the cards first."}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"Could not render card images: {e}"}), 500
     ok, msg = samc_publish.publish_to_teams(webhook_url, SAMC_OUTPUT)
     if ok:
         return jsonify({"ok": True, "message": msg})
-    return jsonify({"ok": False, "error": msg}), 500
+    return jsonify({"ok": False, "error": msg}), 502
 
 
 @samc_bp.route("/api/render-png/<card_type>", methods=["POST"])

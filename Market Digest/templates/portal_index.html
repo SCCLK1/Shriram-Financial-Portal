@@ -34,8 +34,8 @@
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
   --transition: 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -156,8 +156,9 @@ body::before {
   background: var(--surface-hover);
 }
 .menu-btn.active {
-  color: #000000;
-  background: var(--accent);
+  color: var(--text);
+  background: rgba(255,255,255,0.62);
+  box-shadow: var(--glass-hi), inset 3px 0 0 var(--accent);
   font-weight: 600;
 }
 
@@ -766,9 +767,10 @@ body::before {
   background: var(--surface-hover);
 }
 .admin-tab-btn.active {
-  color: #000000;
-  background: var(--accent);
-  font-weight: 600;
+  color: var(--text);
+  background: rgba(255,255,255,0.6);
+  box-shadow: var(--glass-hi), inset 0 -2px 0 var(--accent);
+  font-weight: 700;
 }
 .admin-table {
   width: 100%;
@@ -791,6 +793,17 @@ body::before {
 }
 .company-logo-card {
   transition: all var(--transition);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-hi);
+}
+/* Frost the inline-styled admin surface containers (table + config panels) */
+#admin-subview-users > div,
+#admin-subview-branding > div,
+#admin-subview-branding form,
+.modal-content {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 .company-logo-card:hover {
   border-color: var(--text-dark) !important;
@@ -914,16 +927,12 @@ body::before {
         </div>
       </div>
       <div class="iframe-container">
-        <iframe id="viewport-iframe" src="about:blank"></iframe>
+        <iframe id="viewport-iframe" src="about:blank" allow="clipboard-write; clipboard-read"></iframe>
       </div>
     </section>
 
     <!-- Admin Settings View -->
     <section class="view-panel" id="view-admin">
-      <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600;">Admin Control Panel</h2>
-      </div>
-      
       <div class="admin-tabs">
         <button class="admin-tab-btn active" id="admin-tab-users" onclick="switchAdminTab('users')">User Accounts</button>
         <button class="admin-tab-btn" id="admin-tab-branding" onclick="switchAdminTab('branding')">Branding & Logos</button>
@@ -956,7 +965,8 @@ body::before {
 
       <!-- Branding Subview -->
       <div class="admin-subview" id="admin-subview-branding" style="display: none;">
-        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Company Branding & Logos</h3>
+        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Company Branding & Logos</h3>
+        <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px;">Logos and card settings below apply to the <strong>Micro Digest</strong> cards.</p>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
           <!-- Wealth -->
@@ -998,7 +1008,7 @@ body::before {
 
         <!-- System Branding Colors, Disclaimer, Webhook -->
         <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-top: 16px;">
-          <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">System Configurations</h4>
+          <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Micro Digest Card Settings</h4>
           <form id="branding-config-form" onsubmit="saveBrandingConfig(event)">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
               <div>
@@ -1008,9 +1018,9 @@ body::before {
               <div>
                 <label style="display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; color: var(--text-dark);">Watermark Placement</label>
                 <select id="cfg-watermark-mode" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-sans); font-size: 13px;">
-                  <option value="both">Both Top & Bottom</option>
-                  <option value="top">Top Only</option>
-                  <option value="bottom">Bottom Only</option>
+                  <option value="both">Both (BSE + NSE)</option>
+                  <option value="bse">BSE Only</option>
+                  <option value="nse">NSE Only</option>
                   <option value="none">None</option>
                 </select>
               </div>
@@ -1057,7 +1067,7 @@ body::before {
             Refresh Logs
           </button>
         </div>
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; max-height: 480px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; color: #333;" id="logs-console">
+        <div style="background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-brd); box-shadow: var(--glass-hi); border-radius: var(--radius-md); padding: 16px; max-height: 480px; overflow-y: auto; font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace; font-size: 12px; line-height: 1.6; color: #333;" id="logs-console">
           <!-- Logs populated dynamically -->
         </div>
       </div>
@@ -1302,6 +1312,9 @@ function showMarketplace() {
   $('#view-admin').classList.remove('active');
   $('#view-marketplace').classList.add('active');
   $('#portal-header').style.display = 'flex';
+  $('#portal-eyebrow').textContent = 'Main Portal';
+  $('#portal-title').textContent = 'Market Portal';
+  $('#portal-subtitle').textContent = 'Select and run financial reporting and valuation tools. Live apps run locally; upcoming tools can notify you on release.';
 }
 
 function showAdminPanel() {
@@ -1312,7 +1325,10 @@ function showAdminPanel() {
   $('#view-marketplace').classList.remove('active');
   $('#view-admin').classList.add('active');
   $('#portal-header').style.display = 'flex';
-  
+  $('#portal-eyebrow').textContent = 'Administration';
+  $('#portal-title').textContent = 'Control Panel';
+  $('#portal-subtitle').textContent = 'Manage user accounts, branding, and activity monitoring.';
+
   switchAdminTab('users');
   loadUsers();
   loadBrandingConfig();

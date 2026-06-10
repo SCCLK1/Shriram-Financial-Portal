@@ -118,7 +118,7 @@ body::before {
   flex-direction: column;
   padding: 24px 20px;
   z-index: 100;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   flex-shrink: 0;
   overflow-y: auto;
 }
@@ -916,9 +916,7 @@ textarea.field-input { resize: vertical; min-height: 70px; }
           <nav class="tab-nav" id="tab-nav">
             <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
             <button class="tab-btn" data-tab="configure">Configure</button>
-            <button class="tab-btn" data-tab="publish">Publish</button>
           </nav>
-          <section class="page" id="page-publish"></section>
         </div>
 
         <button class="tab-btn btn-settings" data-tab="configure" id="btn-settings-gear">
@@ -1192,7 +1190,7 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 </div>
 
 <div class="toast-container" id="toast-container"></div>
-\n\n<script>
+<script>
 /* ─── Utilities ─── */
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
@@ -1379,32 +1377,49 @@ async function shareCard(type) {
 
 async function copyCard(type) {
   const label = type.charAt(0).toUpperCase() + type.slice(1);
-  try {
-    // Build the ClipboardItem with a promise so the user-gesture context is kept
-    // while the server renders the PNG (Chrome screenshot may take a moment).
-    const url = `card/${type}.png?_t=${Date.now()}`;
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        'image/png': fetch(url).then(r => {
-          if (!r.ok) throw new Error('Card not ready — generate first');
-          return r.blob();
-        })
-      })
-    ]);
-    toast(`${label} card copied to clipboard!`, 'success');
-    log(`Copied ${type} card to clipboard.`, 'ok');
-  } catch (err) {
-    // Fallback: fetch then write (covers browsers without promise-based ClipboardItem)
+  const url = `card/${type}.png?_t=${Date.now()}`;
+  // Image clipboard write requires a secure context (localhost or HTTPS) + ClipboardItem,
+  // and (inside the portal) the iframe must allow="clipboard-write".
+  const canClipboard = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
+
+  if (canClipboard) {
     try {
-      const resp = await fetch(`card/${type}.png?_t=${Date.now()}`);
-      if (!resp.ok) throw new Error('Card not ready');
-      const blob = await resp.blob();
-      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      // Promise form keeps the user-gesture valid while the PNG renders server-side.
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': fetch(url).then(r => { if (!r.ok) throw new Error('Card not ready'); return r.blob(); }) })
+      ]);
       toast(`${label} card copied to clipboard!`, 'success');
-    } catch (e2) {
-      toast('Copy failed — try the Download button instead.', 'error');
-      log(`Copy failed: ${e2.message}`, 'err');
+      log(`Copied ${type} card to clipboard.`, 'ok');
+      return;
+    } catch (err) {
+      // Some engines reject the promise form — retry with a resolved blob.
+      try {
+        const blob = await (await fetch(url)).blob();
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        toast(`${label} card copied to clipboard!`, 'success');
+        return;
+      } catch (e2) {
+        log(`Clipboard unavailable (${e2.message}); falling back to download.`, 'warn');
+      }
     }
+  } else {
+    log('Clipboard API unavailable (not a secure context?); downloading instead.', 'warn');
+  }
+
+  // Fallback: download the PNG so the user still gets the image.
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Card not generated yet');
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `card_${type}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast(`Copy isn’t available here — downloaded the ${label} card instead.`, 'success');
+  } catch (e3) {
+    toast('Could not copy or download — generate the cards first.', 'error');
+    log(`Copy/download failed: ${e3.message}`, 'err');
   }
 }
 
