@@ -80,6 +80,7 @@ samc_bp = Blueprint("samc", __name__)
 SAMC_OUTPUT = SAMC_BASE / "output"
 SAMC_OUTPUTS = SAMC_BASE / "outputs"
 SAMC_META_FILE = SAMC_OUTPUT / "meta.json"
+SAMC_LAST_DATA = SAMC_OUTPUT / "last_data.json"
 SAMC_CONFIG_FILE = SAMC_BASE / "config.json"
 SAMC_STATIC = SAMC_BASE / "static"
 
@@ -118,6 +119,35 @@ SAMC_DEFAULT_CONFIG = {
 }
 
 samc_gen_lock = threading.Lock()
+
+
+def _samc_rerender_cards() -> bool:
+    """Re-render the SAMC cards from the last generated dataset so a logo or
+    branding change is reflected immediately, without re-fetching market data.
+    Returns True if cards were re-rendered."""
+    if not SAMC_LAST_DATA.exists():
+        return False
+    try:
+        data = json.loads(SAMC_LAST_DATA.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    # render_report reads config.json directly; make sure it mirrors the DB
+    # (active_company, brand colours, disclaimer, watermark).
+    try:
+        db_helper.sync_db_to_json()
+    except Exception:
+        pass
+    samc_render.render_report(data, SAMC_OUTPUT)
+    # Invalidate cached PNGs so they re-render from the refreshed HTML.
+    for card in ("indices", "news"):
+        for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
+            img = folder / f"card_{card}.png"
+            if img.exists():
+                try:
+                    img.unlink()
+                except Exception:
+                    pass
+    return True
 
 
 def _samc_load_config() -> dict:
@@ -219,6 +249,12 @@ def _samc_generate_html() -> dict:
     duration = time.time() - t0
     samc_render.render_report(data, SAMC_OUTPUT)
     _samc_save_meta(data)
+    # Persist the dataset so cards can be re-rendered (e.g. after a logo/branding
+    # change) without re-fetching live market data.
+    try:
+        SAMC_LAST_DATA.write_text(json.dumps(data, default=str, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:
+        print(f"[SAMC] Could not persist last dataset: {e}")
     for card in ("indices", "news"):
         for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
             img = folder / f"card_{card}.png"
@@ -1187,7 +1223,24 @@ def admin_upload_logo():
         dest_samc.write_bytes(file_content)
         
         db_helper.add_log(session.get("mobile"), f"Uploaded new logo for Shriram {company_id.capitalize()}")
-        return jsonify({"ok": True})
+
+        # Re-bake the new logo into the existing SAMC cards so the change shows up
+        # on the preview/images without needing a full re-generate.
+        rerendered = False
+        try:
+            rerendered = _samc_rerender_cards()
+        except Exception as e:
+            print(f"[SAMC] Logo re-render failed: {e}")
+
+        # The cards only display the ACTIVE company's logo. Tell the UI whether the
+        # uploaded company is the active one so it can warn if not.
+        active_company = _samc_load_config().get("active_company", "wealth")
+        return jsonify({
+            "ok": True,
+            "rerendered": rerendered,
+            "active_company": active_company,
+            "is_active": company_id == active_company,
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
