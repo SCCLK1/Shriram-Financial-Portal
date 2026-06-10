@@ -11,11 +11,16 @@
 <style>
 /* ── Design Tokens ── */
 :root {
-  --bg: #F5F5F7;
-  --bg-sidebar: #FFFFFF;
-  --surface: #FFFFFF;
-  --surface-hover: #FAFAFC;
-  --border: #E8E8ED;
+  --bg: #EBEEF3;
+  --bg-sidebar: rgba(255,255,255,0.60);
+  --surface: rgba(255,255,255,0.62);
+  --surface-hover: rgba(255,255,255,0.42);
+  --border: rgba(110,120,140,0.16);
+  /* Glass system */
+  --glass-brd: rgba(255,255,255,0.75);
+  --glass-hi: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.22);
+  --glass-shadow: 0 16px 38px rgba(30,38,55,0.10);
+  --glass-blur: blur(28px) saturate(140%);
   --text: #1D1D1F;
   --text-muted: #86868B;
   --text-dark: #6E6E73;
@@ -49,6 +54,20 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
+/* Calm neutral backdrop so frosted-glass surfaces have depth to refract.
+   Shriram yellow appears only as a faint whisper. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 50% at 10% -2%, rgba(255,255,255,0.95), transparent 60%),
+    radial-gradient(50% 50% at 94% 6%, rgba(202,210,224,0.75), transparent 60%),
+    radial-gradient(62% 60% at 50% 112%, rgba(210,217,229,0.65), transparent 60%),
+    radial-gradient(30% 32% at 88% 30%, rgba(247,181,0,0.10), transparent 60%);
+}
 
 /* Main Layout */
 .app-layout {
@@ -63,7 +82,10 @@ body {
 .sidebar {
   width: 260px;
   background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--glass-brd);
+  box-shadow: var(--glass-hi);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -203,20 +225,22 @@ body {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  background: var(--bg);
+  background: transparent;
 }
 
 /* Header bar */
 .top-header {
   height: 64px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-brd);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
+  background: var(--surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-hi);
 }
 
 .header-title h1 {
@@ -257,19 +281,42 @@ body {
 
 .tool-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-brd);
+  border-radius: 22px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: all var(--transition);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+  box-shadow: var(--glass-hi), var(--glass-shadow);
+}
+/* specular sheen */
+.tool-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 44%);
+}
+.tool-card > * { position: relative; }
+/* yellow accent strip on live tools (the single brand accent) */
+.tool-card.is-live::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--accent);
 }
 .tool-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+  transform: translateY(-6px);
+  box-shadow: var(--glass-hi), 0 28px 56px rgba(30,38,55,0.18);
 }
 
 .card-top {
@@ -318,17 +365,20 @@ body {
 }
 
 .tool-icon-wrapper {
-  width: 48px;
-  height: 48px;
-  background: var(--bg);
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   display: grid;
   place-items: center;
   font-size: 20px;
   flex-shrink: 0;
+  color: #3a3f49;
+  background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.35));
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 6px 16px rgba(30,38,55,0.10);
 }
-.tool-icon-wrapper.tint-live { background: rgba(247,181,0,0.16); color: #A66A00; }
-.tool-icon-wrapper.tint-soon { background: rgba(0,0,0,0.04); color: #6E6E73; }
+/* neutral glass icons for both states — yellow stays an accent, not a fill */
+.tool-icon-wrapper.tint-live, .tool-icon-wrapper.tint-soon { color: #3a3f49; }
 
 /* ── Marketplace header eyebrow ── */
 .header-eyebrow {
@@ -356,15 +406,17 @@ body {
   align-items: center;
   gap: 10px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 11px 16px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-brd);
+  border-radius: 99px;
+  padding: 13px 18px;
   color: var(--text-muted);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  box-shadow: var(--glass-hi), var(--glass-shadow);
+  transition: box-shadow var(--transition);
 }
 .mkt-search:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(247,181,0,0.12);
+  box-shadow: var(--glass-hi), 0 0 0 3px rgba(247,181,0,0.18), var(--glass-shadow);
 }
 .mkt-search input {
   flex: 1;
@@ -380,19 +432,23 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-brd);
   background: var(--surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-hi), var(--glass-shadow);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
-  padding: 9px 16px;
+  padding: 10px 16px;
   border-radius: 99px;
   cursor: pointer;
   transition: all var(--transition);
 }
-.mkt-pill:hover { border-color: var(--text-muted); }
-.mkt-pill.active { background: #1D1D1F; color: #fff; border-color: #1D1D1F; }
+.mkt-pill:hover { background: rgba(255,255,255,0.78); }
+.mkt-pill.active { background: #1A1408; color: #fff; border-color: #1A1408; }
+.mkt-pill.active .pill-count { background: rgba(247,181,0,0.9); color: #1A1408; }
 .pill-count {
   font-size: 11px;
   font-weight: 700;
@@ -410,18 +466,20 @@ body {
   margin-bottom: 18px;
 }
 .tool-status.live {
-  color: #15803D;
-  background: rgba(34,197,94,0.10);
-  font-weight: 600;
+  color: #1A1408;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--glass-brd);
+  font-weight: 700;
   letter-spacing: 0.04em;
 }
+.tool-status.live .status-dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(247,181,0,0.18); }
 .tool-release {
   font-size: 11px;
   font-weight: 600;
-  color: #48484A;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 3px 10px;
+  color: #5b5f68;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--glass-brd);
+  padding: 4px 11px;
   border-radius: 99px;
   letter-spacing: 0.02em;
 }
@@ -472,8 +530,11 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-brd);
   background: var(--surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-hi);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 13px;
@@ -486,7 +547,7 @@ body {
   width: 100%;
 }
 .btn:hover {
-  background: var(--bg);
+  background: rgba(255,255,255,0.82);
 }
 .btn:disabled {
   opacity: 0.3;
@@ -599,13 +660,15 @@ body {
   display: grid;
 }
 .modal-content {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-brd);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 440px;
   padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: var(--glass-hi), 0 30px 60px rgba(30,38,55,0.22);
   animation: modalIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 @keyframes modalIn {
@@ -1144,9 +1207,9 @@ function renderMarketplace() {
 
   visible.forEach(t => {
     const card = document.createElement('div');
-    card.className = 'tool-card';
     const isOnline = t.status === 'online';
     const isComing = t.status === 'coming-soon';
+    card.className = 'tool-card' + (isOnline ? ' is-live' : isComing ? ' is-soon' : '');
 
     let badge;
     if (isOnline) badge = `<span class="tool-status live"><span class="status-dot"></span>LIVE</span>`;

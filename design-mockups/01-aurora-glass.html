@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Aurora Glass</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1B1B2E;--muted:#6B6B85;--yellow:#F7B500;--glass:rgba(255,255,255,0.55);--border:rgba(255,255,255,0.7)}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);min-height:100vh;
+  background:#EEF1F8;position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;
+  background:
+   radial-gradient(40% 50% at 12% 8%, rgba(247,181,0,0.30), transparent 60%),
+   radial-gradient(45% 55% at 88% 12%, rgba(124,108,255,0.28), transparent 60%),
+   radial-gradient(50% 50% at 75% 95%, rgba(0,194,168,0.22), transparent 60%),
+   radial-gradient(40% 40% at 25% 90%, rgba(255,120,170,0.20), transparent 60%);
+  filter:saturate(1.1)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:56px 40px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7C6CFF}
+h1{font-size:46px;font-weight:800;letter-spacing:-.03em;margin:10px 0 12px;
+  background:linear-gradient(90deg,#1B1B2E,#4b3fb0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);font-size:16px;max-width:560px;line-height:1.55}
+.bar{display:flex;gap:14px;align-items:center;margin:30px 0 34px;flex-wrap:wrap}
+.search{flex:1;min-width:260px;display:flex;align-items:center;gap:12px;padding:15px 20px;border-radius:18px;
+  background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);box-shadow:0 8px 30px rgba(40,30,90,.08)}
+.search input{border:0;background:transparent;outline:0;font:500 15px 'Plus Jakarta Sans';width:100%;color:var(--ink)}
+.search svg{color:var(--muted)}
+.pills{display:flex;gap:8px}
+.pill{padding:12px 18px;border-radius:99px;font-weight:600;font-size:14px;cursor:pointer;
+  background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);color:var(--ink)}
+.pill.on{background:linear-gradient(135deg,#7C6CFF,#5a4bd6);color:#fff;border-color:transparent;box-shadow:0 8px 22px rgba(124,108,255,.4)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px}
+.card{padding:26px;border-radius:24px;background:var(--glass);backdrop-filter:blur(24px);
+  border:1px solid var(--border);box-shadow:0 12px 40px rgba(40,30,90,.10);transition:.25s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-6px);box-shadow:0 22px 60px rgba(40,30,90,.16)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,#F7B500,#ff8a00);box-shadow:0 8px 20px rgba(247,181,0,.4)}
+.ic.v{background:linear-gradient(135deg,#7C6CFF,#5a4bd6);box-shadow:0 8px 20px rgba(124,108,255,.4)}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#0a8f5b;background:rgba(0,194,120,.14);padding:5px 11px;border-radius:99px}
+.live .d{width:7px;height:7px;border-radius:50%;background:#0a8f5b;box-shadow:0 0 0 4px rgba(10,143,91,.18)}
+.soon{font-size:11px;font-weight:700;color:#5a4bd6;background:rgba(124,108,255,.14);padding:5px 11px;border-radius:99px}
+h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.desc{font-size:13.5px;color:var(--muted);line-height:1.5;flex:1;margin-bottom:16px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tag{font-size:11px;font-weight:600;color:#5a5a72;background:rgba(255,255,255,.6);padding:4px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.8)}
+.btn{padding:13px;border-radius:14px;border:0;font:700 14px 'Plus Jakarta Sans';cursor:pointer;width:100%}
+.btn.go{background:linear-gradient(135deg,#F7B500,#ff9500);color:#1B1B2E;box-shadow:0 8px 20px rgba(247,181,0,.35)}
+.btn.no{background:rgba(255,255,255,.5);border:1px solid var(--border);color:var(--ink)}
+</style></head>
+<body><div class="wrap">
+  <div class="eyebrow">Shriram Financial Hub</div>
+  <h1>Market Portal</h1>
+  <p class="sub">A curated suite of financial reporting and valuation tools. Run live apps instantly, or get notified when new ones launch.</p>
+  <div class="bar">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search tools, tags, categories…"></div>
+    <div class="pills"><span class="pill on">All 4</span><span class="pill">Live 2</span><span class="pill">Soon 2</span></div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="top"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="live"><span class="d"></span>LIVE</span></div><h3>Shriram Micro Digest</h3><p class="desc">WhatsApp-optimized mobile cards. Generate, configure and publish daily market digests.</p><div class="tags"><span class="tag">WhatsApp</span><span class="tag">Mobile</span><span class="tag">yfinance</span></div><button class="btn go">Launch app →</button></div>
+    <div class="card"><div class="top"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="live"><span class="d"></span>LIVE</span></div><h3>Market Digest (PDF)</h3><p class="desc">Daily A4 PDF market summaries from live sentiment and indicators, branded for Shriram.</p><div class="tags"><span class="tag">PDF</span><span class="tag">A4</span><span class="tag">Chrome</span></div><button class="btn go">Launch app →</button></div>
+    <div class="card"><div class="top"><div class="ic v"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="soon">Q3 2026</span></div><h3>Options Valuation Engine</h3><p class="desc">Black-Scholes pricing with real-time Greeks and volatility surface plotting.</p><div class="tags"><span class="tag">Options</span><span class="tag">Greeks</span></div><button class="btn no">🔔 Notify me</button></div>
+    <div class="card"><div class="top"><div class="ic v"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><span class="soon">Q4 2026</span></div><h3>Portfolio Optimizer</h3><p class="desc">Modern Portfolio Theory simulation for optimal risk/return frontier allocation.</p><div class="tags"><span class="tag">Optimization</span><span class="tag">MPT</span></div><button class="btn no">🔔 Notify me</button></div>
+  </div>
+</div></body></html>

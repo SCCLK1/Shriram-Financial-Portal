@@ -28,3 +28,6 @@ Thumbs.db
 
 # Claude Code local config
 .claude/
+
+# Design mockup screenshots (keep HTML, skip heavy PNGs)
+design-mockups/*.png

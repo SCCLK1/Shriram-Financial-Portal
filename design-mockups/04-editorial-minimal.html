@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Editorial Minimal</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--paper:#FBFAF7;--ink:#1A1A17;--mut:#76746C;--rule:#E4E2DA;--yellow:#E0A400}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;padding:64px 40px}
+.kick{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:18px}
+h1{font-family:'Fraunces',serif;font-weight:500;font-size:64px;line-height:1.02;letter-spacing:-.02em;margin:36px 0 16px}
+h1 em{font-style:italic;color:var(--yellow)}
+.lead{font-size:17px;color:var(--mut);max-width:520px;line-height:1.6}
+.controls{display:flex;justify-content:space-between;align-items:center;margin:44px 0 8px;border-bottom:1px solid var(--rule);padding-bottom:16px;flex-wrap:wrap;gap:14px}
+.search{display:flex;align-items:center;gap:10px;color:var(--mut)}
+.search input{border:0;background:transparent;outline:0;font:500 15px Inter;color:var(--ink);width:240px}
+.filters{display:flex;gap:22px;font-size:14px;font-weight:500}
+.filters span{cursor:pointer;color:var(--mut);padding-bottom:4px}
+.filters span.on{color:var(--ink);border-bottom:2px solid var(--yellow)}
+.row{display:grid;grid-template-columns:40px 1fr auto;gap:28px;align-items:center;padding:28px 4px;border-bottom:1px solid var(--rule);transition:.2s;cursor:pointer}
+.row:hover{background:#fff;padding-left:14px;padding-right:14px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
+.num{font-family:'Fraunces',serif;font-size:22px;color:#BDBBB2}
+.mid{display:flex;flex-direction:column;gap:7px}
+.tt{display:flex;align-items:center;gap:12px}
+.tt h3{font-family:'Fraunces',serif;font-weight:600;font-size:25px;letter-spacing:-.01em}
+.live{font-size:10px;font-weight:700;letter-spacing:.1em;color:#0a8f5b;border:1px solid rgba(10,143,91,.3);padding:2px 8px;border-radius:99px}
+.soon{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--mut);border:1px solid var(--rule);padding:2px 8px;border-radius:99px}
+.desc{font-size:14px;color:var(--mut);line-height:1.5;max-width:560px}
+.meta{display:flex;gap:14px;font-size:12px;color:#9b998f}
+.meta span::after{content:"";margin-left:14px}
+.act{display:flex;align-items:center;gap:18px}
+.arrow{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap}
+.arrow.dim{color:var(--mut)}
+.arrow .a{display:inline-block;transition:.2s}
+.row:hover .arrow .a{transform:translateX(5px)}
+</style></head>
+<body><div class="wrap">
+  <div class="kick"><span>Shriram&nbsp;Financial</span><span>Market Portal — 2026</span></div>
+  <h1>Tools for <em>markets</em>,<br>made to move fast.</h1>
+  <p class="lead">A refined collection of reporting and valuation instruments. Run live applications locally, or follow upcoming releases.</p>
+  <div class="controls">
+    <div class="search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search the collection…"></div>
+    <div class="filters"><span class="on">All — 4</span><span>Live — 2</span><span>Coming soon — 2</span></div>
+  </div>
+
+  <div class="row"><div class="num">01</div><div class="mid"><div class="tt"><h3>Shriram Micro Digest</h3><span class="live">LIVE</span></div><p class="desc">WhatsApp-optimized mobile cards. Generate, configure and publish daily market digests.</p><div class="meta"><span>WhatsApp</span><span>Mobile</span><span>yfinance</span></div></div><div class="act"><span class="arrow">Launch app <span class="a">→</span></span></div></div>
+
+  <div class="row"><div class="num">02</div><div class="mid"><div class="tt"><h3>Market Digest (PDF)</h3><span class="live">LIVE</span></div><p class="desc">Daily A4 PDF market summaries from live sentiment and indicators, branded for Shriram.</p><div class="meta"><span>PDF</span><span>A4 Report</span><span>Headless Chrome</span></div></div><div class="act"><span class="arrow">Launch app <span class="a">→</span></span></div></div>
+
+  <div class="row"><div class="num">03</div><div class="mid"><div class="tt"><h3>Options Valuation Engine</h3><span class="soon">Q3 2026</span></div><p class="desc">Black-Scholes pricing with real-time Greeks calculation and volatility surface plotting.</p><div class="meta"><span>Options</span><span>Greeks</span></div></div><div class="act"><span class="arrow dim">Notify me <span class="a">→</span></span></div></div>
+
+  <div class="row"><div class="num">04</div><div class="mid"><div class="tt"><h3>Portfolio Optimizer</h3><span class="soon">Q4 2026</span></div><p class="desc">Modern Portfolio Theory simulation for optimal risk/return frontier allocation.</p><div class="meta"><span>Optimization</span><span>MPT</span></div></div><div class="act"><span class="arrow dim">Notify me <span class="a">→</span></span></div></div>
+</div></body></html>
