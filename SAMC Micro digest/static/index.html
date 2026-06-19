@@ -813,7 +813,10 @@ textarea.field-input { resize: vertical; min-height: 70px; }
   -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   pointer-events: none;
-  z-index: 999;
+  /* Must stay below .sidebar (z-index: 100) — this only dims the main
+     content behind the open drawer, not the drawer itself. The config-drawer
+     (z-index: 1000) which also reuses this overlay still renders above it. */
+  z-index: 95;
   transition: opacity 0.3s ease;
 }
 #page-configure.active ~ .drawer-overlay {
@@ -883,6 +886,9 @@ textarea.field-input { resize: vertical; min-height: 70px; }
     pointer-events: auto;
   }
   .right-sidebar {
+    display: none !important;
+  }
+  .sidebar-resizer {
     display: none !important;
   }
   .preview-viewport {
@@ -1648,12 +1654,25 @@ function log(msg, cls = '') {
   while (box.children.length > 100) box.removeChild(box.firstChild);
 }
 
-async function api(path, opts = {}) {
-  let finalPath = path;
-  if (!path.startsWith('/') && !path.startsWith('http')) {
-    const base = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
-    finalPath = base + path;
+function resolveUrl(path) {
+  if (path.startsWith('http') || path.startsWith('//')) {
+    return path;
   }
+  let cleanPath = path;
+  if (path.startsWith('/')) {
+    // Strip leading slash if it's for our API/assets/cards to resolve sub-path correctly on deployed builds
+    if (path.startsWith('/api/') || path.startsWith('/card/')) {
+      cleanPath = path.slice(1);
+    } else {
+      return path;
+    }
+  }
+  const base = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
+  return base + cleanPath;
+}
+
+async function api(path, opts = {}) {
+  const finalPath = resolveUrl(path);
   const r = await fetch(finalPath, opts);
   return r.json();
 }
@@ -1827,17 +1846,24 @@ function getPreviewZoom() {
 
 function applyPreviewZoom(pct) {
   const factor = pct / 100;
+  // Measure the real usable space instead of guessing from window.innerWidth:
+  // the dashboard page, preview container border, and viewport padding all
+  // eat into it by different amounts across breakpoints. clientWidth already
+  // nets out everything except .preview-viewport's own 16px/side padding.
+  const vp = $('.preview-viewport');
+  const available = vp ? vp.clientWidth - 32 : window.innerWidth - 32;
+  const effectiveFactor = Math.min(factor, available / PREVIEW_BASE_W);
   $$('.preview-frame').forEach(frame => {
-    frame.style.width = `${PREVIEW_BASE_W * factor}px`;
-    frame.style.height = `${currentContentHeight * PREVIEW_BASE_SCALE * factor}px`;
+    frame.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
+    frame.style.height = `${currentContentHeight * PREVIEW_BASE_SCALE * effectiveFactor}px`;
     const iframe = frame.querySelector('iframe');
     if (iframe) {
       iframe.style.height = `${currentContentHeight}px`;
-      iframe.style.transform = `scale(${PREVIEW_BASE_SCALE * factor})`;
+      iframe.style.transform = `scale(${PREVIEW_BASE_SCALE * effectiveFactor})`;
     }
   });
   $$('.card-panel-head').forEach(head => {
-    head.style.width = `${PREVIEW_BASE_W * factor}px`;
+    head.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
   });
   const label = $('#preview-zoom-label');
   if (label) label.textContent = `${pct}%`;
@@ -1853,6 +1879,7 @@ if (previewZoomSlider) {
     applyPreviewZoom(pct);
     localStorage.setItem(PREVIEW_ZOOM_KEY, String(pct));
   });
+  window.addEventListener('resize', () => applyPreviewZoom(getPreviewZoom()));
 }
 
 async function shareCard(type) {
@@ -4309,8 +4336,7 @@ async function loadVersions() {
   if (!listEl) return;
   
   try {
-    const resp = await fetch('/api/versions');
-    const data = await resp.json();
+    const data = await api('api/versions');
     const versions = data.versions || [];
     
     listEl.innerHTML = '';
@@ -4389,12 +4415,11 @@ async function saveVersion() {
   
   try {
     toast('Saving version…', 'info');
-    const resp = await fetch('/api/version/save', {
+    const data = await api('api/version/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: name || undefined })
     });
-    const data = await resp.json();
     if (data.ok) {
       toast(`Version "${data.version.name}" saved!`, 'success');
       log(`Saved version: ${data.version.name}`, 'ok');
@@ -4413,8 +4438,7 @@ async function restoreVersion(versionId, versionName) {
   
   try {
     toast('Restoring version…', 'info');
-    const resp = await fetch(`/api/version/restore/${versionId}`, { method: 'POST' });
-    const data = await resp.json();
+    const data = await api(`api/version/restore/${versionId}`, { method: 'POST' });
     if (data.ok) {
       toast(`Restored "${versionName}"!`, 'success');
       log(`Restored version: ${versionName}`, 'ok');
@@ -4432,8 +4456,7 @@ async function deleteVersion(versionId, versionName) {
   if (!confirm(`Delete version "${versionName}"?\n\nThis cannot be undone.`)) return;
   
   try {
-    const resp = await fetch(`/api/version/${versionId}`, { method: 'DELETE' });
-    const data = await resp.json();
+    const data = await api(`api/version/${versionId}`, { method: 'DELETE' });
     if (data.ok) {
       toast(`Version "${versionName}" deleted.`, 'info');
       log(`Deleted version: ${versionName}`, 'info');

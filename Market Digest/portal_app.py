@@ -83,6 +83,8 @@ SAMC_META_FILE = SAMC_OUTPUT / "meta.json"
 SAMC_LAST_DATA = SAMC_OUTPUT / "last_data.json"
 SAMC_CONFIG_FILE = SAMC_BASE / "config.json"
 SAMC_STATIC = SAMC_BASE / "static"
+SAMC_VERSIONS_DIR = SAMC_OUTPUT / "versions"
+SAMC_VERSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
 SAMC_DEFAULT_CONFIG = {
     "active_company": "wealth",
@@ -455,6 +457,105 @@ def samc_api_reset_card():
                 pass
                 
         _samc_generate_html()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/version/save", methods=["POST"])
+def samc_api_version_save():
+    try:
+        body = request.get_json(force=True, silent=True) or {}
+        version_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name = body.get("name") or f"Version {version_id}"
+        ver_dir = SAMC_VERSIONS_DIR / version_id
+        ver_dir.mkdir(parents=True, exist_ok=True)
+
+        for fname in ("layout_overrides.json", "card_daily.html", "card_daily.png"):
+            src = SAMC_OUTPUT / fname
+            if src.exists():
+                shutil.copy2(src, ver_dir / fname)
+
+        created_at = datetime.now().isoformat()
+        meta = {
+            "id": version_id,
+            "name": name,
+            "created_at": created_at,
+            "user": session.get("mobile", "unknown"),
+        }
+        (ver_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Saved version {version_id} ({name})")
+        return jsonify({"ok": True, "version": {"id": version_id, "name": name, "created_at": created_at}})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/versions", methods=["GET"])
+def samc_api_versions_list():
+    try:
+        versions = []
+        if SAMC_VERSIONS_DIR.exists():
+            for d in SAMC_VERSIONS_DIR.iterdir():
+                meta_file = d / "meta.json"
+                if d.is_dir() and meta_file.exists():
+                    try:
+                        meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                        meta["has_png"] = (d / "card_daily.png").exists()
+                        versions.append(meta)
+                    except Exception:
+                        pass
+        versions.sort(key=lambda v: v.get("created_at", ""), reverse=True)
+        return jsonify({"versions": versions})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/version/restore/<version_id>", methods=["POST"])
+def samc_api_version_restore(version_id: str):
+    try:
+        ver_dir = SAMC_VERSIONS_DIR / version_id
+        if not ver_dir.exists() or not ver_dir.is_dir():
+            return jsonify({"error": "Version not found."}), 404
+
+        src_overrides = ver_dir / "layout_overrides.json"
+        dst_overrides = SAMC_OUTPUT / "layout_overrides.json"
+        if src_overrides.exists():
+            shutil.copy2(src_overrides, dst_overrides)
+        elif dst_overrides.exists():
+            dst_overrides.unlink()
+
+        src_html = ver_dir / "card_daily.html"
+        if src_html.exists():
+            shutil.copy2(src_html, SAMC_OUTPUT / "card_daily.html")
+
+        for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
+            img = folder / "card_daily.png"
+            if img.exists():
+                try:
+                    img.unlink()
+                except Exception:
+                    pass
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Restored version {version_id}")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/version/<version_id>", methods=["DELETE"])
+def samc_api_version_delete(version_id: str):
+    try:
+        ver_dir = SAMC_VERSIONS_DIR / version_id
+        if not ver_dir.exists() or not ver_dir.is_dir():
+            return jsonify({"error": "Version not found."}), 404
+
+        shutil.rmtree(ver_dir)
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Deleted version {version_id}")
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -926,14 +1027,14 @@ TOOLS_METADATA = [
         "status": "online"
     },
     {
-        "id": "options-pricing",
-        "name": "Options Valuation Engine",
-        "description": "Black-Scholes option pricing model with real-time Greeks calculation and volatility surface plotting.",
+        "id": "ai-creatives",
+        "name": "AI Marketing Creatives Engine",
+        "description": "Enterprise-grade generative AI platform to generate, manage, and govern brand-compliant marketing creatives.",
         "url": "#",
         "port": None,
-        "category": "ANALYTICS",
-        "icon": "chart-line",
-        "tags": ["Options", "Greeks"],
+        "category": "INFOGRAPHICS",
+        "icon": "document",
+        "tags": ["GenAI", "Branding", "Social Media"],
         "status": "coming-soon",
         "release": "Q3 2026"
     },
@@ -1329,4 +1430,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORTAL_PORT", 8000))
     print("Marketplace Tools Portal starting...")
     print(f"  Portal:  http://127.0.0.1:{port}/")
-    app.run(host="127.0.0.1", port=port, debug=False)
+    app.run(host="127.0.0.1", port=port, debug=True)

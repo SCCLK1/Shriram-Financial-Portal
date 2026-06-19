@@ -83,10 +83,10 @@
     white-space: nowrap;
     flex-wrap: wrap;
   }
-  .ticker-row .lbl { color: #F2B705; }
-  .ticker-row .val { color: #fff; }
-  .ticker-row .up { color: #3FBF4A; }
-  .ticker-row .down { color: #ED4242; }
+  .ticker-row .lbl { color: #F2B705; margin-right: 6px; }
+  .ticker-row .val { color: #fff; margin-right: 4px; }
+  .ticker-row .up { color: #3FBF4A; margin-right: 4px; }
+  .ticker-row .down { color: #ED4242; margin-right: 4px; }
   .up { color: #2C8A2C; }
   .down { color: #CE2C2C; }
   .ticker-sep { color: #7a5c1e; }
@@ -332,10 +332,10 @@
         <div class="mood-title">MARKET MOOD</div>
         <svg width="150" height="91" viewBox="0 0 200 116" style="overflow:visible;">
           <path id="gauge-arc-red" d="M20,100 A80,80 0 0 1 35.28,52.96" fill="none" stroke="#E23A28" stroke-width="20" stroke-linecap="round"/>
-          <path id="gauge-arc-orange" d="M35.28,52.96 A80,80 0 0 1 75.28,23.92" fill="none" stroke="#F0902B" stroke-width="20"/>
-          <path id="gauge-arc-yellow" d="M75.28,23.92 A80,80 0 0 1 124.72,23.92" fill="none" stroke="#F2C72E" stroke-width="20"/>
-          <path id="gauge-arc-lightgreen" d="M124.72,23.92 A80,80 0 0 1 164.72,52.96" fill="none" stroke="#7FC241" stroke-width="20"/>
           <path id="gauge-arc-green" d="M164.72,52.96 A80,80 0 0 1 180,100" fill="none" stroke="#2C9E3F" stroke-width="20" stroke-linecap="round"/>
+          <path id="gauge-arc-orange" d="M35.28,52.96 A80,80 0 0 1 75.28,23.92" fill="none" stroke="#F0902B" stroke-width="20"/>
+          <path id="gauge-arc-lightgreen" d="M124.72,23.92 A80,80 0 0 1 164.72,52.96" fill="none" stroke="#7FC241" stroke-width="20"/>
+          <path id="gauge-arc-yellow" d="M75.28,23.92 A80,80 0 0 1 124.72,23.92" fill="none" stroke="#F2C72E" stroke-width="20"/>
           <g id="gauge-needle" transform="translate(100,100) rotate({{ fmt.mood_angle - 90 }})">
             <line x1="0" y1="0" x2="56" y2="0" stroke="#1b1b1b" stroke-width="7" stroke-linecap="round"/>
           </g>
