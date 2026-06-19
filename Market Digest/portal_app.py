@@ -171,6 +171,9 @@ def _samc_coverage(data: dict) -> dict:
         "fii_dii": mc.get("fii") is not None and mc.get("dii") is not None,
         "gsec": bool(gsec.get("value") if gsec.get("available") else False),
         "pe": bool(pe.get("value") if pe.get("available") else False),
+        "vix": bool(quotes.get("vix", {}).get("value")),
+        "us10y": bool(quotes.get("us10y", {}).get("value")),
+        "dxy": bool(quotes.get("dxy", {}).get("value")),
         "news": bool(mc.get("headlines")),
     }
 
@@ -258,14 +261,13 @@ def _samc_generate_html() -> dict:
         SAMC_LAST_DATA.write_text(json.dumps(data, default=str, ensure_ascii=False), encoding="utf-8")
     except Exception as e:
         print(f"[SAMC] Could not persist last dataset: {e}")
-    for card in ("indices", "news"):
-        for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
-            img = folder / f"card_{card}.png"
-            if img.exists():
-                try:
-                    img.unlink()
-                except Exception:
-                    pass
+    for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
+        img = folder / "card_daily.png"
+        if img.exists():
+            try:
+                img.unlink()
+            except Exception:
+                pass
     meta = _samc_load_meta()
     return {
         "generated_at": meta["generated_at"] if meta else None,
@@ -291,13 +293,35 @@ def _samc_render_png(card_type: str) -> Path:
         "--no-sandbox",
         "--disable-dev-shm-usage",
         "--hide-scrollbars",
-        "--window-size=540,1200",
+        "--force-device-scale-factor=2",
+        "--window-size=1024,1850",
         f"--screenshot={png_file}",
         url,
     ]
     result = subprocess.run(cmd, capture_output=True, timeout=60)
     if result.returncode != 0 or not png_file.exists():
         raise RuntimeError(f"Chrome PNG generation failed (code {result.returncode}).")
+    
+    # Auto-crop bottom empty space
+    try:
+        from PIL import Image
+        img = Image.open(png_file)
+        w, h = img.size
+        bg = img.getpixel((0, h - 1))
+        last_y = h - 1
+        found = False
+        for y in range(h - 1, 0, -1):
+            for x in range(w):
+                if img.getpixel((x, y))[:3] != bg[:3]:
+                    last_y = y
+                    found = True
+                    break
+            if found:
+                break
+        if found and last_y < h - 1:
+            img.crop((0, 0, w, last_y + 20)).save(png_file)
+    except Exception as ex:
+        print(f"[SAMC Portal] Crop failed: {ex}")
     try:
         shutil.copy2(png_file, SAMC_OUTPUTS / f"card_{card_type}.png")
         shutil.copy2(html_file, SAMC_OUTPUTS / f"card_{card_type}.html")
@@ -327,13 +351,11 @@ def samc_static_files(filename):
 @samc_bp.route("/api/status")
 def samc_api_status():
     meta = _samc_load_meta()
-    has_indices = (SAMC_OUTPUT / "card_indices.html").exists()
-    has_news = (SAMC_OUTPUT / "card_news.html").exists()
+    has_daily = (SAMC_OUTPUT / "card_daily.html").exists()
     chrome_ok = bool(CHROME_PATH)
     return jsonify({
-        "has_report": bool(meta and has_indices),
-        "has_indices": has_indices,
-        "has_news": has_news,
+        "has_report": bool(meta and has_daily),
+        "has_daily": has_daily,
         "chrome_available": chrome_ok,
         "chrome_path": CHROME_PATH,
         **(meta or {}),
@@ -380,6 +402,64 @@ def samc_api_config_save():
         return jsonify({"error": str(e)}), 500
 
 
+@samc_bp.route("/api/save-card", methods=["POST"])
+def samc_api_save_card():
+    try:
+        body = request.get_json(force=True)
+        if not isinstance(body, dict) or "html" not in body:
+            return jsonify({"error": "Invalid payload. 'html' is required."}), 400
+        
+        html_content = body["html"]
+        html_file = SAMC_OUTPUT / "card_daily.html"
+        
+        # Save HTML
+        html_file.write_text(html_content, encoding="utf-8")
+        
+        # Also save overrides if present to retain them across generation
+        overrides = body.get("layout_overrides")
+        if overrides is not None:
+            try:
+                overrides_file = SAMC_OUTPUT / "layout_overrides.json"
+                overrides_file.write_text(json.dumps(overrides, indent=2), encoding="utf-8")
+            except Exception as e:
+                print(f"[SAMC Portal] Exception writing overrides: {e}")
+        
+        # Invalidate cached PNGs
+        for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
+            img = folder / "card_daily.png"
+            if img.exists():
+                try:
+                    img.unlink()
+                except Exception:
+                    pass
+        
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, "Saved custom layout for Daily card")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/reset-card", methods=["POST"])
+def samc_api_reset_card():
+    try:
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, "Reset custom layout for Daily card")
+        
+        # Delete layout overrides JSON
+        overrides_file = SAMC_OUTPUT / "layout_overrides.json"
+        if overrides_file.exists():
+            try:
+                overrides_file.unlink()
+            except Exception:
+                pass
+                
+        _samc_generate_html()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @samc_bp.route("/api/publish", methods=["POST"])
 def samc_api_publish():
     cfg = _samc_load_config()
@@ -389,16 +469,15 @@ def samc_api_publish():
         webhook_url = body["webhook_url"]
     if not webhook_url:
         return jsonify({"error": "Webhook URL is not configured."}), 400
-    # Generating deletes the PNGs, so render them on demand before publishing
-    # (cached if already fresh) — avoids "PNG files not found" when the user skips
+    # Generating deletes the PNG, so render on demand before publishing
+    # (cached if already fresh) — avoids "PNG file not found" when the user skips
     # the manual "Render PNGs" step.
     try:
-        _samc_render_png("indices")
-        _samc_render_png("news")
+        _samc_render_png("daily")
     except FileNotFoundError:
         return jsonify({"ok": False, "error": "Generate the cards first."}), 400
     except Exception as e:
-        return jsonify({"ok": False, "error": f"Could not render card images: {e}"}), 500
+        return jsonify({"ok": False, "error": f"Could not render card image: {e}"}), 500
     ok, msg = samc_publish.publish_to_teams(webhook_url, SAMC_OUTPUT)
     if ok:
         return jsonify({"ok": True, "message": msg})
@@ -407,7 +486,7 @@ def samc_api_publish():
 
 @samc_bp.route("/api/render-png/<card_type>", methods=["POST"])
 def samc_api_render_png(card_type: str):
-    if card_type not in ("indices", "news"):
+    if card_type != "daily":
         return jsonify({"error": "Invalid card type."}), 400
     try:
         _samc_render_png(card_type)
@@ -418,37 +497,18 @@ def samc_api_render_png(card_type: str):
         return jsonify({"error": str(e)}), 500
 
 
-@samc_bp.route("/card/indices")
-def samc_card_indices():
-    html_file = SAMC_OUTPUT / "card_indices.html"
+@samc_bp.route("/card/daily")
+def samc_card_daily():
+    html_file = SAMC_OUTPUT / "card_daily.html"
     if not html_file.exists():
-        abort(404, "Indices card not generated yet.")
+        abort(404, "Daily card not generated yet.")
     return send_file(html_file, mimetype="text/html")
 
 
-@samc_bp.route("/card/news")
-def samc_card_news():
-    html_file = SAMC_OUTPUT / "card_news.html"
-    if not html_file.exists():
-        abort(404, "News card not generated yet.")
-    return send_file(html_file, mimetype="text/html")
-
-
-@samc_bp.route("/card/indices.png")
-def samc_card_indices_png():
+@samc_bp.route("/card/daily.png")
+def samc_card_daily_png():
     try:
-        png = _samc_render_png("indices")
-    except FileNotFoundError as e:
-        return jsonify({"error": str(e)}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    return send_file(png, mimetype="image/png")
-
-
-@samc_bp.route("/card/news.png")
-def samc_card_news_png():
-    try:
-        png = _samc_render_png("news")
+        png = _samc_render_png("daily")
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:

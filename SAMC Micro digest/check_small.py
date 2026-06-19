@@ -1,4 +1,4 @@
-html = open('output/card_indices.html', encoding='utf-8').read()
+html = open('output/card_daily.html', encoding='utf-8').read()
 lines = html.split('\n')
 for i, line in enumerate(lines):
     if 'SMALL' in line:

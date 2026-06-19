@@ -99,6 +99,11 @@ def init_db():
                 "usdinr_value": "",
                 "gsec_value": "",
                 "pe_value": "",
+                "vix_value": "",
+                "us10y_value": "",
+                "dxy_value": "",
+                "midcap_pe_value": "",
+                "smallcap_pe_value": "",
                 "headlines": [],
             }))
         }
@@ -149,7 +154,7 @@ def load_db_config() -> dict:
             "watermark_mode": "both",
             "brand_colors": {"bg_color": "#FCF9F2", "text_color": "#1A1A1A", "yellow_brand": "#F7B500", "gray_text": "#555555"},
             "manual_override": False,
-            "overrides": {"date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "", "mid_value": "", "mid_change": "", "small_value": "", "small_change": "", "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "", "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "headlines": []}
+            "overrides": {"date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "", "mid_value": "", "mid_change": "", "small_value": "", "small_change": "", "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "", "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "vix_value": "", "us10y_value": "", "dxy_value": "", "midcap_pe_value": "", "smallcap_pe_value": "", "headlines": []}
         }
         for k, val in defaults.items():
             if k not in cfg:
@@ -267,6 +272,7 @@ def delete_user(user_id: int) -> tuple[bool, str]:
 # ---------------------------------------------------------------------------
 
 def add_log(mobile: str, action: str):
+    import datetime
     conn = get_db_conn()
     cursor = conn.cursor()
     try:
@@ -276,6 +282,16 @@ def add_log(mobile: str, action: str):
         pass
     finally:
         conn.close()
+
+    try:
+        log_dir = BASE_DIR / "output"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "activity_logs.txt"
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(f"[{now_str}] Mobile: {mobile} | Action: {action}\n")
+    except Exception as e:
+        print(f"[DB Error] Failed to write to activity_logs.txt: {e}")
 
 
 def list_logs(limit: int = 100) -> list[dict]:

@@ -11,36 +11,30 @@ def publish_to_teams(webhook_url: str, output_dir: Path) -> tuple[bool, str]:
     if not webhook_url:
         return False, "Webhook URL is empty."
         
-    indices_png = output_dir / "card_indices.png"
-    news_png = output_dir / "card_news.png"
-    
-    if not indices_png.exists() or not news_png.exists():
-        return False, "Generated card PNG files not found. Generate them first."
-        
+    daily_png = output_dir / "card_daily.png"
+
+    if not daily_png.exists():
+        return False, "Generated card PNG file not found. Generate it first."
+
     try:
-        # Base64 encode the PNG files
-        with open(indices_png, "rb") as f:
-            indices_b64 = base64.b64encode(f.read()).decode("utf-8")
-        with open(news_png, "rb") as f:
-            news_b64 = base64.b64encode(f.read()).decode("utf-8")
-            
-        # Standard Connector MessageCard payload containing both images stacked
+        # Base64 encode the PNG file
+        with open(daily_png, "rb") as f:
+            daily_b64 = base64.b64encode(f.read()).decode("utf-8")
+
+        # Standard Connector MessageCard payload containing the consolidated card
         payload = {
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
             "themeColor": "F7B500",
-            "summary": "SAMC Micro Digest - Daily News & Update",
+            "summary": "SAMC Micro Digest - Daily Update",
             "sections": [
                 {
-                    "activityTitle": "SAMC Micro Digest - Indices & News",
-                    "activitySubtitle": "Mobile-friendly daily update cards",
-                    "text": "Here are today's daily infographics:",
+                    "activityTitle": "SAMC Micro Digest - Daily Update",
+                    "activitySubtitle": "Mobile-friendly daily update card",
+                    "text": "Here is today's daily infographic:",
                     "images": [
                         {
-                            "image": f"data:image/png;base64,{indices_b64}"
-                        },
-                        {
-                            "image": f"data:image/png;base64,{news_b64}"
+                            "image": f"data:image/png;base64,{daily_b64}"
                         }
                     ]
                 }

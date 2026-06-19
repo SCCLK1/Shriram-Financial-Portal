@@ -54,7 +54,7 @@ def capture_screenshot(html_path: Path, png_path: Path) -> bool:
         "--disable-gpu",
         "--no-sandbox",
         "--hide-scrollbars",
-        "--window-size=540,1200",
+        "--window-size=1024,1536",
         f"--screenshot={png_path}",
         url,
     ]
@@ -76,38 +76,42 @@ def main() -> int:
     data = fetch_all()
     print(f"  fetch complete in {time.time() - t0:.1f}s")
 
+    try:
+        from app import _apply_overrides, _load_config
+        cfg = _load_config()
+        data = _apply_overrides(data, cfg)
+        print("  applied manual overrides from config")
+    except Exception as e:
+        print(f"  Warning: Could not apply overrides: {e}")
+
     output_dir = Path(__file__).parent / "output"
     outputs_dir = Path(__file__).parent / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs_dir.mkdir(parents=True, exist_ok=True)
     
-    # Render both Mobile HTML layouts
+    # Render the consolidated Daily Update HTML layout
     render_report(data, output_dir)
-    print(f"HTML layouts generated under output/")
-    
-    # Screenshot Mobile Cards
-    capture_screenshot(output_dir / "card_indices.html", output_dir / "card_indices.png")
-    capture_screenshot(output_dir / "card_news.html", output_dir / "card_news.png")
-    
+    print(f"HTML layout generated under output/")
+
+    # Screenshot the Daily Update card
+    capture_screenshot(output_dir / "card_daily.html", output_dir / "card_daily.png")
+
     # Sync to outputs directory
     try:
-        shutil.copy2(output_dir / "card_indices.png", outputs_dir / "card_indices.png")
-        shutil.copy2(output_dir / "card_news.png", outputs_dir / "card_news.png")
-        shutil.copy2(output_dir / "card_indices.html", outputs_dir / "card_indices.html")
-        shutil.copy2(output_dir / "card_news.html", outputs_dir / "card_news.html")
+        shutil.copy2(output_dir / "card_daily.png", outputs_dir / "card_daily.png")
+        shutil.copy2(output_dir / "card_daily.html", outputs_dir / "card_daily.html")
         print("Synchronized generated files to outputs/ directory.")
     except Exception as e:
         print(f"Warning: Failed to copy to outputs/ directory: {e}")
-        
+
     # Copy to Desktop if available
     desktop = Path(r"C:\Users\K964\OneDrive - Shriram Finance Limited\Desktop")
     if not desktop.exists():
         desktop = Path(r"C:\Users\K964\Desktop")
     if desktop.exists():
         try:
-            shutil.copy2(output_dir / "card_indices.png", desktop / "card_indices.png")
-            shutil.copy2(output_dir / "card_news.png", desktop / "card_news.png")
-            print(f"Successfully copied card PNGs to Desktop: {desktop}")
+            shutil.copy2(output_dir / "card_daily.png", desktop / "card_daily.png")
+            print(f"Successfully copied card PNG to Desktop: {desktop}")
         except Exception as e:
             print(f"Warning: Failed to copy to Desktop: {e}")
             

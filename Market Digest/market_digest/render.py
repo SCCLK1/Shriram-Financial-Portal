@@ -90,9 +90,12 @@ def render_report(data: dict[str, Any], output_path: Path) -> Path:
     if logo_src.exists():
         logo_base64 = get_base64_img(logo_src)
     else:
-        # Fallback to desktop
+        logos_dir = Path(__file__).parent.parent / "logos"
+        project_logo = logos_dir / "logo.png"
         desktop_logo = Path("C:/Users/K964/OneDrive - Shriram Finance Limited/Desktop/logo.png")
-        if desktop_logo.exists():
+        if project_logo.exists():
+            logo_base64 = get_base64_img(project_logo)
+        elif desktop_logo.exists():
             logo_base64 = get_base64_img(desktop_logo)
             
     banner_base64 = ""
