@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Daily Update</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-color: {{ colors.bg_color | default('#FDF8F1') }};
+    --text-color: {{ colors.text_color | default('#1b1b1b') }};
+    --yellow-brand: {{ colors.yellow_brand | default('#F4A300') }};
+    --gray-text: {{ colors.gray_text | default('#9a9077') }};
+    --brown-bar: #6E4A2E;
+    --up-color: #2C8A2C;
+    --down-color: #CE2C2C;
+    --line-color: #EBDCB4;
+    --outer-line: #E7D6AB;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { background-color: var(--bg-color); }
+
+  body {
+    width: 1024px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Hero (logo + banner artwork + date pill, one seamless block) ── */
+  .hero-wrap { position: relative; width: 1024px; }
+  .banner-art { display: block; width: 1024px; height: auto; }
+  .hero-logo {
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    width: 260px; height: auto;
+  }
+  .date-pill-row {
+    position: absolute;
+    left: 0; top: 370px;
+    width: 100%; height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .date-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 3px solid #E3D6BC;
+    border-radius: 999px;
+    padding: 10px 34px; 
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+  .date-pill svg { width: 32px; height: 32px; color: var(--brown-bar); }
+
+  /* ── Ticker ──────────────────────────────────────────────────── */
+  .ticker-wrap { padding: 8px 22px 4px; }
+  .ticker-box {
+    background: linear-gradient(#121008, #070604);
+    border: 2px solid #B98A36;
+    border-radius: 14px;
+    padding: 8px 26px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.18);
+  }
+  .ticker-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    font-weight: 700;
+    font-size: 16px;
+    white-space: nowrap;
+    flex-wrap: wrap;
+  }
+  .ticker-row .lbl { color: #F2B705; }
+  .ticker-row .val { color: #fff; }
+  .ticker-row .up { color: #3FBF4A; }
+  .ticker-row .down { color: #ED4242; }
+  .up { color: #2C8A2C; }
+  .down { color: #CE2C2C; }
+  .ticker-sep { color: #7a5c1e; }
+  .ticker-divider { height: 1px; background: linear-gradient(90deg, transparent, #7a5c1e, transparent); margin: 6px 0; }
+
+  /* ── Section header (numbered badge + brown pill) ───────────────*/
+  .section-head {
+    display: flex;
+    align-items: stretch;
+    margin: 10px 22px 8px;
+    height: 38px;
+  }
+  .section-num {
+    width: 44px;
+    background: var(--yellow-brand);
+    color: #1b1b1b;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px 0 0 7px;
+  }
+  .section-label {
+    background: var(--brown-bar);
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px 0 12px;
+    border-radius: 0 22px 22px 0;
+    white-space: nowrap;
+  }
+
+  .section-body { padding: 0 22px; }
+  .panel { border: 1.5px solid var(--outer-line); border-radius: 16px; }
+
+  /* ── Section 1: Market Pulse ─────────────────────────────────── */
+  .pulse-panel { padding: 10px 14px; display: flex; gap: 14px; }
+  .pulse-table { flex: 1.9; border: 1.5px solid var(--line-color); border-radius: 10px; overflow: hidden; }
+  .pulse-table .grid { display: grid; grid-template-columns: 1.1fr 0.8fr 1.25fr; }
+  .pulse-table .c {
+    padding: 8px 10px;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    border-right: 1.5px solid var(--line-color);
+    border-bottom: 1.5px solid var(--line-color);
+  }
+  .pulse-table .grid > div:nth-child(3n) { border-right: none; }
+  .pulse-table .grid > div:nth-last-child(-n+3) { border-bottom: none; }
+  .pulse-table .num { font-weight: 700; font-size: 17px; text-align: center; }
+  .pulse-table .chg { font-weight: 600; font-size: 14px; }
+
+  .gauge-col { flex: 0.85; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .mood-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: .4px; margin-bottom: 4px; white-space: nowrap; }
+  .mood-label-text { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .flow-col { flex: 1.05; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+  .flow-box {
+    border: 1.5px solid var(--line-color);
+    border-radius: 10px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .flow-box .flbl { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+  .flow-box .flval { font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .flow-box svg { flex: none; width: 19px; height: 16px; }
+
+  /* ── Section 2: Top News ─────────────────────────────────────── */
+  .news-panel { padding: 2px 14px; }
+  .news-row {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 6px 4px;
+    border-bottom: 1px solid #EFE3C2;
+  }
+  .news-row:last-child { border-bottom: none; }
+  .news-num {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1b1b1b;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .news-text { font-weight: 600; font-size: 14px; color: #1b1b1b; }
+
+  /* ── Section 3: Market Snapshot ──────────────────────────────── */
+  .snap-panel { padding: 2px 4px; }
+  .snap-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; border-bottom: 1.5px solid var(--line-color); }
+  .snap-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .snap-grid.last { border-bottom: none; }
+  .snap-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 8px;
+    border-right: 1.5px solid var(--line-color);
+  }
+  .snap-grid > .snap-cell:last-child { border-right: none; }
+  .snap-icon { flex: none; width: 44px; height: 44px; object-fit: contain; }
+  .snap-label { font-weight: 700; font-size: 11px; white-space: nowrap; letter-spacing: 0.2px; }
+  .snap-unit { color: var(--gray-text); font-size: 9.5px; }
+  .snap-value { font-weight: 700; font-size: 15px; }
+  .snap-value.pad { margin-top: 10px; }
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+  .footer-gold {
+    background: var(--yellow-brand);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    padding: 7px 22px;
+    gap: 12px;
+  }
+  .footer-tagline {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1b1b1b;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .footer-target { flex: none; width: 26px; height: 26px; }
+  .footer-divider { width: 1.5px; height: 22px; background: rgba(0,0,0,.35); flex: none; }
+  .footer-follow {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #1b1b1b;
+    white-space: nowrap;
+  }
+  .footer-icons { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; }
+  .footer-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #1b1b1b;
+    color: var(--yellow-brand);
+    text-decoration: none;
+  }
+  .footer-icon-link svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    display: block;
+  }
+
+  .footer-legal {
+    text-align: center;
+    color: var(--text-color);
+    padding: 8px 24px 8px;
+  }
+  .footer-legal .reg { font-size: 11px; margin-bottom: 4px; }
+  .footer-legal .disc { font-weight: 600; font-size: 12px; }
+</style>
+</head>
+<body>
+
+  <!-- Hero: logo + banner artwork (building + bull + DAILY UPDATE title) + date pill, one seamless block -->
+  <div class="hero-wrap">
+    <img class="banner-art" src="{{ banner_base64 }}" alt="Daily Update">
+    <img class="hero-logo" src="{{ logo_base64 }}" alt="Shriram Mutual Fund Logo">
+    <div class="date-pill-row">
+      <div class="date-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        {{ mobile_card.date }}{% if mobile_card.day %} &nbsp;|&nbsp; {{ mobile_card.day }}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-box">
+      <div class="ticker-row">
+        <span><span class="lbl">NIFTY</span> <span class="val">{{ fmt.nse_val }}</span>{% if fmt.nse_chg %} <span class="{{ fmt.nse_cls }}">{{ '▲' if fmt.nse_cls == 'up' else '▼' }} {{ fmt.nse_chg }} pts</span>{% endif %}</span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">SENSEX</span> <span class="val">{{ fmt.bse_val }}</span>{% if fmt.bse_chg %} <span class="{{ fmt.bse_cls }}">{{ '▲' if fmt.bse_cls == 'up' else '▼' }} {{ fmt.bse_chg }} pts</span>{% endif %}</span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">FII</span> <span class="{{ fmt.fii_cls }}">{{ fmt.fii }}</span> <span class="{{ fmt.fii_cls }}">{{ '▲' if fmt.fii_cls == 'up' else '▼' }}</span></span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">DII</span> <span class="{{ fmt.dii_cls }}">{{ fmt.dii }}</span> <span class="{{ fmt.dii_cls }}">{{ '▲' if fmt.dii_cls == 'up' else '▼' }}</span></span>
+      </div>
+      <div class="ticker-divider"></div>
+      <div class="ticker-row">
+        <span><span class="lbl">GOLD</span> <span class="val">${{ fmt.gold }}</span></span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">SILVER</span> <span class="val">${{ fmt.silver }}</span></span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">USD/INR</span> <span class="val">{{ fmt.usdinr }}</span></span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">INDIA VIX</span> <span class="val">{{ fmt.vix }}</span></span>
+        <span class="ticker-sep">|</span>
+        <span><span class="lbl">BRENT</span> <span class="val">${{ fmt.brent }}</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: Market Pulse -->
+  <div class="section-head">
+    <div class="section-num">1</div>
+    <div class="section-label">MARKET PULSE</div>
+  </div>
+  <div class="section-body">
+    <div class="panel pulse-panel">
+      <div class="pulse-table">
+        <div class="grid">
+          <div class="c">Sensex</div>
+          <div class="c num">{{ fmt.bse_val }}</div>
+          <div class="c chg {{ fmt.bse_cls }}">{% if fmt.bse_chg %}({{ fmt.bse_chg }} points){% else %}—{% endif %}</div>
+
+          <div class="c">Nifty 50</div>
+          <div class="c num">{{ fmt.nse_val }}</div>
+          <div class="c chg {{ fmt.nse_cls }}">{% if fmt.nse_chg %}({{ fmt.nse_chg }} points){% else %}—{% endif %}</div>
+
+          <div class="c">BSE MIDCAP</div>
+          <div class="c num">{{ fmt.mid_val }}</div>
+          <div class="c chg {{ fmt.mid_cls }}">{% if fmt.mid_chg %}({{ fmt.mid_chg }} points){% else %}—{% endif %}</div>
+
+          <div class="c">BSE SMALLCAP</div>
+          <div class="c num">{{ fmt.small_val }}</div>
+          <div class="c chg {{ fmt.small_cls }}">{% if fmt.small_chg %}({{ fmt.small_chg }} points){% else %}—{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="gauge-col">
+        <div class="mood-title">MARKET MOOD</div>
+        <svg width="150" height="91" viewBox="0 0 200 116" style="overflow:visible;">
+          <path id="gauge-arc-red" d="M20,100 A80,80 0 0 1 35.28,52.96" fill="none" stroke="#E23A28" stroke-width="20" stroke-linecap="round"/>
+          <path id="gauge-arc-orange" d="M35.28,52.96 A80,80 0 0 1 75.28,23.92" fill="none" stroke="#F0902B" stroke-width="20"/>
+          <path id="gauge-arc-yellow" d="M75.28,23.92 A80,80 0 0 1 124.72,23.92" fill="none" stroke="#F2C72E" stroke-width="20"/>
+          <path id="gauge-arc-lightgreen" d="M124.72,23.92 A80,80 0 0 1 164.72,52.96" fill="none" stroke="#7FC241" stroke-width="20"/>
+          <path id="gauge-arc-green" d="M164.72,52.96 A80,80 0 0 1 180,100" fill="none" stroke="#2C9E3F" stroke-width="20" stroke-linecap="round"/>
+          <g id="gauge-needle" transform="translate(100,100) rotate({{ fmt.mood_angle - 90 }})">
+            <line x1="0" y1="0" x2="56" y2="0" stroke="#1b1b1b" stroke-width="7" stroke-linecap="round"/>
+          </g>
+          <circle id="gauge-pin" cx="100" cy="100" r="11" fill="#1b1b1b"/>
+        </svg>
+        <div class="mood-label-text" style="color: {{ fmt.mood_color }};">{{ fmt.mood_label }}</div>
+      </div>
+
+      <div class="flow-col">
+        <div class="flow-box">
+          <div>
+            <div class="flbl">FII/FPI</div>
+            <div class="flval {{ fmt.fii_cls }}">{{ fmt.fii_box }}</div>
+          </div>
+          <svg viewBox="0 0 26 22">{% if fmt.fii_cls == 'up' %}<polygon points="13,1 0,21 26,21" fill="#2C8A2C"/>{% else %}<polygon points="13,21 0,1 26,1" fill="#CE2C2C"/>{% endif %}</svg>
+        </div>
+        <div class="flow-box">
+          <div>
+            <div class="flbl">DII</div>
+            <div class="flval {{ fmt.dii_cls }}">{{ fmt.dii_box }}</div>
+          </div>
+          <svg viewBox="0 0 26 22">{% if fmt.dii_cls == 'up' %}<polygon points="13,1 0,21 26,21" fill="#2C8A2C"/>{% else %}<polygon points="13,21 0,1 26,1" fill="#CE2C2C"/>{% endif %}</svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Top News -->
+  <div class="section-head">
+    <div class="section-num">2</div>
+    <div class="section-label">TOP NEWS</div>
+  </div>
+  <div class="section-body">
+    <div class="panel news-panel">
+      {% if mobile_card.headlines %}
+        {% for headline in mobile_card.headlines %}
+          <div class="news-row">
+            <div class="news-num">{{ loop.index }}</div>
+            <div class="news-text">{{ headline }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="news-row">
+          <div class="news-num">1</div>
+          <div class="news-text">No major news headlines reported for today. Monitor index sectors for individual breakouts.</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Section 3: Market Snapshot -->
+  <div class="section-head">
+    <div class="section-num">3</div>
+    <div class="section-label">MARKET SNAPSHOT</div>
+  </div>
+  <div class="section-body">
+    <div class="panel snap-panel">
+      <div class="snap-grid">
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_brent_base64 }}" alt="Brent Crude">
+          <div><div class="snap-label">BRENT CRUDE</div><div class="snap-unit">($/bbl)</div><div class="snap-value">{{ fmt.brent }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_gold_base64 }}" alt="Gold">
+          <div><div class="snap-label">GOLD</div><div class="snap-unit">($/ounce)</div><div class="snap-value">{{ fmt.gold }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_silver_base64 }}" alt="Silver">
+          <div><div class="snap-label">SILVER</div><div class="snap-unit">($/ounce)</div><div class="snap-value">{{ fmt.silver }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_usdinr_base64 }}" alt="USD/INR">
+          <div><div class="snap-label">USD/INR</div><div class="snap-value pad">{{ fmt.usdinr }}</div></div>
+        </div>
+      </div>
+      <div class="snap-grid">
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_gsec_base64 }}" alt="G-Sec">
+          <div><div class="snap-label">G-SEC</div><div class="snap-unit">(10 Y)</div><div class="snap-value">{{ fmt.gsec }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_us10y_base64 }}" alt="US 10Y Yield">
+          <div><div class="snap-label">US 10Y YIELD</div><div class="snap-value pad">{{ fmt.us10y }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_dxy_base64 }}" alt="Dollar Index">
+          <div><div class="snap-label">$ INDEX</div><div class="snap-unit">(DXY)</div><div class="snap-value">{{ fmt.dxy }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_vix_base64 }}" alt="India VIX">
+          <div><div class="snap-label">INDIA VIX</div><div class="snap-value pad">{{ fmt.vix }}</div></div>
+        </div>
+      </div>
+      <div class="snap-grid three last">
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_nifty_pe_base64 }}" alt="Nifty 50 PE">
+          <div><div class="snap-label">NIFTY 50 PE</div><div class="snap-value pad">{{ fmt.pe }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_midcap_pe_base64 }}" alt="Nifty Midcap 100 PE">
+          <div><div class="snap-label">NIFTY MIDCAP 100 PE</div><div class="snap-value pad">{{ fmt.midcap_pe }}</div></div>
+        </div>
+        <div class="snap-cell">
+          <img class="snap-icon" src="{{ icon_smallcap_pe_base64 }}" alt="Nifty Smallcap 100 PE">
+          <div><div class="snap-label">NIFTY SMALLCAP 100 PE</div><div class="snap-value pad">{{ fmt.smallcap_pe }}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-gold">
+    <svg class="footer-target" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="#1b1b1b" stroke-width="3"/>
+      <circle cx="24" cy="24" r="12" fill="none" stroke="#1b1b1b" stroke-width="3"/>
+      <circle cx="24" cy="24" r="4" fill="#CE2C2C"/>
+      <path d="M24 24 L41 13" stroke="#CE2C2C" stroke-width="3" stroke-linecap="round"/>
+      <path d="M37 8 L41 13 L36 17 L35 12 Z" fill="#CE2C2C"/>
+    </svg>
+    <div class="footer-tagline">DISCIPLINE TODAY, WEALTH TOMORROW</div>
+    <div class="footer-divider"></div>
+    <div class="footer-follow">FOLLOW US @ShriramMF</div>
+    <div class="footer-icons">
+      <a href="https://x.com/ShriramMF" target="_blank" class="footer-icon-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://www.linkedin.com/company/shrirammf" target="_blank" class="footer-icon-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 21.5h-5v-13h5v13zM4 6.5C2.5 6.5 1.5 5.3 1.5 4s1-2.5 2.5-2.5S6.5 2.7 6.5 4 5.5 6.5 4 6.5zM22.5 21.5h-5v-7.4c0-2-.8-3.1-2.4-3.1-1.3 0-2 .9-2.4 1.7-.1.3-.2.7-.2 1.1v7.7h-5v-13h5v1.8c.7-1 1.8-2.5 4.5-2.5 3.3 0 5.8 2.2 5.8 6.9v6.8z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/shrirammf/" target="_blank" class="footer-icon-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+      </a>
+      <a href="https://www.youtube.com/@ShriramMF" target="_blank" class="footer-icon-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <div class="reg">SEBI Registered: SHRIRAMMF &nbsp;|&nbsp; Registration no: MF/017/94/4 | SEBI PMS registration No. INP000008765</div>
+    <div class="disc">{{ disclaimer_text | default('Mutual Fund investments are subject to market risks, read all scheme related documents carefully.') }}</div>
+  </div>
+
+</body>
+</html>

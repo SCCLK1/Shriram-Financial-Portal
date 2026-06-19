@@ -15,7 +15,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask, Response, jsonify, request, send_file, abort, session, redirect, url_for
+from flask import Flask, Response, jsonify, request, send_file, abort, session, redirect, url_for, render_template
 import db_helper
 
 from samc_micro_digest.fetch import fetch_all
@@ -31,6 +31,8 @@ OUTPUT.mkdir(parents=True, exist_ok=True)
 OUTPUTS.mkdir(parents=True, exist_ok=True)
 META_FILE = OUTPUT / "meta.json"
 CONFIG_FILE = BASE / "config.json"
+VERSIONS_DIR = OUTPUT / "versions"
+VERSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_CONFIG = {
     "active_company": "wealth",
@@ -62,6 +64,11 @@ DEFAULT_CONFIG = {
         "usdinr_value": "",
         "gsec_value": "",
         "pe_value": "",
+        "vix_value": "",
+        "us10y_value": "",
+        "dxy_value": "",
+        "midcap_pe_value": "",
+        "smallcap_pe_value": "",
         "headlines": [],
     },
 }
@@ -117,6 +124,9 @@ def _coverage(data: dict) -> dict:
         "fii_dii": mc.get("fii") is not None and mc.get("dii") is not None,
         "gsec": bool(gsec.get("value") if gsec.get("available") else False),
         "pe": bool(pe.get("value") if pe.get("available") else False),
+        "vix": bool(quotes.get("vix", {}).get("value")),
+        "us10y": bool(quotes.get("us10y", {}).get("value")),
+        "dxy": bool(quotes.get("dxy", {}).get("value")),
         "news": bool(mc.get("headlines")),
     }
 
@@ -172,7 +182,7 @@ def _apply_overrides(data: dict, cfg: dict) -> dict:
         v = _float(f"{k}_value")
         if v is not None:
             mc[k] = v
-    for k in ("brent", "gold", "silver", "usdinr"):
+    for k in ("brent", "gold", "silver", "usdinr", "vix", "us10y", "dxy"):
         v = _float(f"{k}_value")
         if v is not None:
             q[k]["value"] = v
@@ -182,6 +192,12 @@ def _apply_overrides(data: dict, cfg: dict) -> dict:
     pe_v = _float("pe_value")
     if pe_v is not None:
         mc["pe"] = {"available": True, "value": pe_v}
+    midcap_pe_v = _float("midcap_pe_value")
+    if midcap_pe_v is not None:
+        mc["midcap_pe"] = {"available": True, "value": midcap_pe_v}
+    smallcap_pe_v = _float("smallcap_pe_value")
+    if smallcap_pe_v is not None:
+        mc["smallcap_pe"] = {"available": True, "value": smallcap_pe_v}
     headlines = ov.get("headlines")
     if headlines:
         mc["headlines"] = headlines if isinstance(headlines, list) else [headlines]
@@ -196,15 +212,14 @@ def _generate_html() -> dict:
     duration = time.time() - t0
     render_report(data, OUTPUT)
     _save_meta(data)
-    # Invalidate stale PNGs
-    for card in ("indices", "news"):
-        for folder in (OUTPUT, OUTPUTS):
-            img = folder / f"card_{card}.png"
-            if img.exists():
-                try:
-                    img.unlink()
-                except Exception:
-                    pass
+    # Invalidate stale PNG
+    for folder in (OUTPUT, OUTPUTS):
+        img = folder / "card_daily.png"
+        if img.exists():
+            try:
+                img.unlink()
+            except Exception:
+                pass
     meta = _load_meta()
     return {
         "generated_at": meta["generated_at"] if meta else None,
@@ -229,13 +244,40 @@ def _render_png(card_type: str) -> Path:
         "--disable-gpu",
         "--no-sandbox",
         "--hide-scrollbars",
-        "--window-size=540,1200",
+        "--force-device-scale-factor=2",
+        "--window-size=1024,1850",
         f"--screenshot={png_file}",
         url,
     ]
     result = subprocess.run(cmd, capture_output=True, timeout=60)
     if result.returncode != 0 or not png_file.exists():
         raise RuntimeError(f"Chrome PNG generation failed (code {result.returncode}).")
+    
+    # Auto-crop bottom empty space
+    try:
+        from PIL import Image
+        img = Image.open(png_file)
+        w, h = img.size
+        bg = img.getpixel((0, h - 1))
+        last_y = h - 1
+        found = False
+        for y in range(h - 1, 0, -1):
+            for x in range(w):
+                if img.getpixel((x, y))[:3] != bg[:3]:
+                    last_y = y
+                    found = True
+                    break
+            if found:
+                break
+        
+        # Add 20px padding at the bottom
+        target_h = min(h, last_y + 20)
+        if target_h < h:
+            cropped = img.crop((0, 0, w, target_h))
+            cropped.save(png_file)
+            print(f"[Render] Cropped card daily screenshot from {h}px to {target_h}px")
+    except Exception as e:
+        print(f"[Render] PIL Crop Exception: {e}")
     try:
         shutil.copy2(png_file, OUTPUTS / f"card_{card_type}.png")
         shutil.copy2(html_file, OUTPUTS / f"card_{card_type}.html")
@@ -314,13 +356,11 @@ def index():
 @app.route("/api/status")
 def api_status():
     meta = _load_meta()
-    has_indices = (OUTPUT / "card_indices.html").exists()
-    has_news = (OUTPUT / "card_news.html").exists()
+    has_daily = (OUTPUT / "card_daily.html").exists()
     chrome_ok = bool(CHROME_PATH)
     return jsonify({
-        "has_report": bool(meta and has_indices),
-        "has_indices": has_indices,
-        "has_news": has_news,
+        "has_report": bool(meta and has_daily),
+        "has_daily": has_daily,
         "chrome_available": chrome_ok,
         "chrome_path": CHROME_PATH,
         **(meta or {}),
@@ -382,9 +422,174 @@ def api_publish():
     return jsonify({"ok": False, "error": msg}), 500
 
 
+@app.route("/api/save-card", methods=["POST"])
+def api_save_card():
+    try:
+        body = request.get_json(force=True)
+        if not isinstance(body, dict) or "html" not in body:
+            return jsonify({"error": "Invalid payload. 'html' is required."}), 400
+        
+        html_content = body["html"]
+        html_file = OUTPUT / "card_daily.html"
+        
+        # Save HTML
+        html_file.write_text(html_content, encoding="utf-8")
+        
+        # Also save overrides if present to retain them across generation
+        overrides = body.get("layout_overrides")
+        print(f"DEBUG: api_save_card overrides = {overrides}")
+        if overrides is not None:
+            try:
+                overrides_file = OUTPUT / "layout_overrides.json"
+                print(f"DEBUG: writing overrides to {overrides_file}")
+                overrides_file.write_text(json.dumps(overrides, indent=2), encoding="utf-8")
+                print("DEBUG: overrides successfully written!")
+            except Exception as e:
+                print(f"DEBUG: Exception writing overrides: {e}")
+        
+        # Invalidate cached PNGs
+        for folder in (OUTPUT, OUTPUTS):
+            img = folder / "card_daily.png"
+            if img.exists():
+                try:
+                    img.unlink()
+                except Exception:
+                    pass
+        
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, "Saved custom layout for Daily card")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/reset-card", methods=["POST"])
+def api_reset_card():
+    try:
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, "Reset custom layout for Daily card")
+        
+        # Delete layout overrides JSON
+        overrides_file = OUTPUT / "layout_overrides.json"
+        if overrides_file.exists():
+            try:
+                overrides_file.unlink()
+            except Exception:
+                pass
+                
+        _generate_html()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/version/save", methods=["POST"])
+def api_version_save():
+    try:
+        body = request.get_json(force=True, silent=True) or {}
+        version_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name = body.get("name") or f"Version {version_id}"
+        ver_dir = VERSIONS_DIR / version_id
+        ver_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy current files into the version snapshot
+        for fname in ("layout_overrides.json", "card_daily.html", "card_daily.png"):
+            src = OUTPUT / fname
+            if src.exists():
+                shutil.copy2(src, ver_dir / fname)
+
+        # Save metadata
+        created_at = datetime.now().isoformat()
+        meta = {
+            "id": version_id,
+            "name": name,
+            "created_at": created_at,
+            "user": session.get("mobile", "unknown"),
+        }
+        (ver_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Saved version {version_id} ({name})")
+        return jsonify({"ok": True, "version": {"id": version_id, "name": name, "created_at": created_at}})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/versions", methods=["GET"])
+def api_versions_list():
+    try:
+        versions = []
+        if VERSIONS_DIR.exists():
+            for d in VERSIONS_DIR.iterdir():
+                meta_file = d / "meta.json"
+                if d.is_dir() and meta_file.exists():
+                    try:
+                        meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                        meta["has_png"] = (d / "card_daily.png").exists()
+                        versions.append(meta)
+                    except Exception:
+                        pass
+        versions.sort(key=lambda v: v.get("created_at", ""), reverse=True)
+        return jsonify({"versions": versions})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/version/restore/<version_id>", methods=["POST"])
+def api_version_restore(version_id: str):
+    try:
+        ver_dir = VERSIONS_DIR / version_id
+        if not ver_dir.exists() or not ver_dir.is_dir():
+            return jsonify({"error": "Version not found."}), 404
+
+        # Restore layout_overrides.json
+        src_overrides = ver_dir / "layout_overrides.json"
+        dst_overrides = OUTPUT / "layout_overrides.json"
+        if src_overrides.exists():
+            shutil.copy2(src_overrides, dst_overrides)
+        elif dst_overrides.exists():
+            dst_overrides.unlink()
+
+        # Restore card_daily.html
+        src_html = ver_dir / "card_daily.html"
+        if src_html.exists():
+            shutil.copy2(src_html, OUTPUT / "card_daily.html")
+
+        # Invalidate cached PNGs
+        for folder in (OUTPUT, OUTPUTS):
+            img = folder / "card_daily.png"
+            if img.exists():
+                try:
+                    img.unlink()
+                except Exception:
+                    pass
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Restored version {version_id}")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/version/<version_id>", methods=["DELETE"])
+def api_version_delete(version_id: str):
+    try:
+        ver_dir = VERSIONS_DIR / version_id
+        if not ver_dir.exists() or not ver_dir.is_dir():
+            return jsonify({"error": "Version not found."}), 404
+
+        shutil.rmtree(ver_dir)
+
+        mobile = session.get("mobile", "unknown")
+        db_helper.add_log(mobile, f"Deleted version {version_id}")
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/render-png/<card_type>", methods=["POST"])
 def api_render_png(card_type: str):
-    if card_type not in ("indices", "news"):
+    if card_type != "daily":
         return jsonify({"error": "Invalid card type."}), 400
     try:
         _render_png(card_type)
@@ -399,37 +604,18 @@ def api_render_png(card_type: str):
 # Routes — card assets
 # ---------------------------------------------------------------------------
 
-@app.route("/card/indices")
-def card_indices():
-    html_file = OUTPUT / "card_indices.html"
+@app.route("/card/daily")
+def card_daily():
+    html_file = OUTPUT / "card_daily.html"
     if not html_file.exists():
-        abort(404, "Indices card not generated yet.")
+        abort(404, "Daily card not generated yet.")
     return send_file(html_file, mimetype="text/html")
 
 
-@app.route("/card/news")
-def card_news():
-    html_file = OUTPUT / "card_news.html"
-    if not html_file.exists():
-        abort(404, "News card not generated yet.")
-    return send_file(html_file, mimetype="text/html")
-
-
-@app.route("/card/indices.png")
-def card_indices_png():
+@app.route("/card/daily.png")
+def card_daily_png():
     try:
-        png = _render_png("indices")
-    except FileNotFoundError as e:
-        return jsonify({"error": str(e)}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    return send_file(png, mimetype="image/png")
-
-
-@app.route("/card/news.png")
-def card_news_png():
-    try:
-        png = _render_png("news")
+        png = _render_png("daily")
     except FileNotFoundError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:

@@ -46,6 +46,9 @@ VAL_BOUNDS = {
     "usdinr": (70.0, 110.0),
     "gsec": (5.0, 11.0),
     "pe": (12.0, 45.0),
+    "vix": (5.0, 60.0),
+    "us10y": (1.0, 10.0),
+    "dxy": (70.0, 130.0),
 }
 
 
@@ -74,7 +77,10 @@ def fetch_mobile_card_quotes() -> dict[str, Any]:
         "brent": ("BZ=F", "Brent Crude"),
         "gold": ("GC=F", "Gold USD/oz"),
         "silver": ("SI=F", "Silver USD/oz"),
-        "usdinr": ("USDINR=X", "USD/INR")
+        "usdinr": ("USDINR=X", "USD/INR"),
+        "vix": ("^INDIAVIX", "India VIX"),
+        "us10y": ("^TNX", "US 10Y Treasury Yield"),
+        "dxy": ("DX-Y.NYB", "US Dollar Index"),
     }
     symbols = [t[0] for t in tickers.values()]
     out = {}
@@ -444,33 +450,69 @@ def fetch_news(limit: int = 5) -> list[str]:
     return [c["title"] for c in candidates[:limit]]
 
 
+def compute_market_mood(quotes: dict[str, Any]) -> dict[str, Any]:
+    """Derive a simple Bullish/Neutral/Bearish reading from index momentum and India VIX.
+
+    Heuristic only (no ML/external sentiment source): averages the Nifty/Sensex
+    percentage change and dampens it when VIX is elevated, since a rally on
+    high VIX is less convincingly "bullish" than one on calm volatility.
+    """
+    pct_values = [
+        v["change_pct"] for v in (quotes.get("nse"), quotes.get("bse"))
+        if v and v.get("change_pct") is not None
+    ]
+    avg_pct = sum(pct_values) / len(pct_values) if pct_values else 0.0
+
+    vix_val = (quotes.get("vix") or {}).get("value")
+    vix_drag = max(0.0, (vix_val - 15.0)) * 0.05 if vix_val is not None else 0.0
+    score = avg_pct - vix_drag if avg_pct >= 0 else avg_pct + vix_drag
+
+    if score > 0.15:
+        label, color = "BULLISH", "#2E7D32"
+    elif score < -0.15:
+        label, color = "BEARISH", "#C62828"
+    else:
+        label, color = "NEUTRAL", "#B8860B"
+
+    angle = max(-90.0, min(90.0, (score / 1.5) * 90.0))
+    return {"label": label, "color": color, "angle": round(angle, 1)}
+
+
 def fetch_all() -> dict[str, Any]:
     """Orchestrate all data fetchers for the mobile card infographics."""
     print("  [fetch] Fetching market quotes...")
     quotes = fetch_mobile_card_quotes()
-    
+
     print("  [fetch] Fetching FII/DII activity...")
     fii_val, dii_val = fetch_fii_dii()
-    
+
     print("  [fetch] Fetching G-Sec yield...")
     gsec = fetch_gsec_yield()
-    
+
     print("  [fetch] Fetching Nifty PE ratio...")
     pe = fetch_nifty_pe()
-    
+
     print("  [fetch] Fetching news headlines...")
     headlines = fetch_news()
-    
+
+    now = datetime.now()
+
     # Packaged in the exact structure expected by the render templates
     return {
-        "generated_at": datetime.now(),
+        "generated_at": now,
         "mobile_card": {
-            "date": datetime.now().strftime("%d/%m/%Y"),
+            "date": now.strftime("%d/%m/%Y"),
+            "day": now.strftime("%A").upper(),
+            "time": now.strftime("%I:%M %p"),
             "quotes": quotes,
             "fii": fii_val,
             "dii": dii_val,
             "gsec": gsec,
             "pe": pe,
+            # No reliable free live source for these two — manual override or N/A.
+            "midcap_pe": {"available": False},
+            "smallcap_pe": {"available": False},
+            "mood": compute_market_mood(quotes),
             "headlines": headlines
         }
     }
