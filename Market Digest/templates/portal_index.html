@@ -11,35 +11,32 @@
 <style>
 /* ── Design Tokens ── */
 :root {
-  --bg: #EBEEF3;
-  --bg-sidebar: rgba(255,255,255,0.60);
-  --surface: rgba(255,255,255,0.62);
-  --surface-hover: rgba(255,255,255,0.42);
-  --border: #D4D8E0; /* visible structural border for inputs, table rows, dividers */
-  /* Glass system */
-  --glass-brd: rgba(255,255,255,0.75);
-  --glass-hi: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.22);
-  --glass-shadow: 0 16px 38px rgba(30,38,55,0.10);
-  --glass-blur: blur(28px) saturate(140%);
-  --text: #1D1D1F;
-  --text-muted: #86868B;
-  --text-dark: #6E6E73;
-  --accent: #F7B500; /* Shriram Yellow */
-  --accent-hover: #E0A400;
-  --accent-glow: rgba(247, 181, 0, 0.08);
-  --gold: #FF9500;
-  --green: #34C759;
-  --red: #FF3B30;
-  --cyan: #30B0C7;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
-  --transition: 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  --bg: #F8F9FC; /* Crisp light grey-blue background */
+  --bg-sidebar: #FFFFFF; /* Solid white sidebar */
+  --surface: #FFFFFF; /* Pure white cards and panels */
+  --surface-hover: #F9FAFB; /* Soft hover highlight */
+  --border: #E5E7EB; /* Subtle grey border */
+  --glass-brd: rgba(0, 0, 0, 0.05); /* Soft card border */
+  --glass-hi: none; /* Flat, clean surfaces */
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 30px rgba(0, 0, 0, 0.02); /* Extremely soft shadow */
+  --glass-blur: none;
+  --text: #111827; /* Dark slate text */
+  --text-muted: #6B7280; /* Muted grey text */
+  --text-dark: #374151; /* Charcoal text */
+  --accent: #2563EB; /* Vibrant blue accent */
+  --accent-hover: #1D4ED8;
+  --accent-glow: rgba(37, 99, 235, 0.05);
+  --gold: #F59E0B;
+  --green: #10B981;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --font-display: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-
 
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,8 +51,8 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
-/* Calm neutral backdrop so frosted-glass surfaces have depth to refract.
-   Shriram yellow appears only as a faint whisper. */
+
+/* Very subtle gold/blue background glows to add premium depth */
 body::before {
   content: "";
   position: fixed;
@@ -63,10 +60,8 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(55% 50% at 10% -2%, rgba(255,255,255,0.95), transparent 60%),
-    radial-gradient(50% 50% at 94% 6%, rgba(202,210,224,0.75), transparent 60%),
-    radial-gradient(62% 60% at 50% 112%, rgba(210,217,229,0.65), transparent 60%),
-    radial-gradient(30% 32% at 88% 30%, rgba(247,181,0,0.10), transparent 60%);
+    radial-gradient(40% 40% at 85% 15%, rgba(37, 99, 235, 0.03), transparent 60%),
+    radial-gradient(40% 40% at 15% 85%, rgba(245, 158, 11, 0.04), transparent 60%);
 }
 
 /* Main Layout */
@@ -82,10 +77,7 @@ body::before {
 .sidebar {
   width: 260px;
   background: var(--bg-sidebar);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--glass-brd);
-  box-shadow: var(--glass-hi);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -95,46 +87,46 @@ body::before {
 
 .sidebar-header {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 32px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
   padding: 0 8px;
 }
 .sidebar-logo-img {
-  height: 54px;
-  width: auto;
-  max-width: 150px;
+  height: 36px;
+  width: 36px;
+  border-radius: 10px;
   object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 .sidebar-brand-name {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--text);
   line-height: 1.2;
 }
 .sidebar-brand-sub {
-  font-size: 11.5px;
-  color: var(--text-dark); /* Higher contrast gray */
-  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
   line-height: 1.3;
 }
 
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
 }
 .menu-title {
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-dark); /* Higher contrast gray */
-  text-transform: none;
-  letter-spacing: normal;
-  margin: 16px 12px 6px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 18px 12px 6px;
 }
 .menu-btn {
   border: none;
@@ -143,24 +135,33 @@ body::before {
   font-family: var(--font-sans);
   font-size: 13.5px;
   font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-align: left;
   transition: all var(--transition);
+  position: relative;
 }
 .menu-btn:hover {
   color: var(--text);
-  background: var(--surface-hover);
+  background: #F3F4F6;
 }
 .menu-btn.active {
   color: var(--text);
-  background: rgba(255,255,255,0.62);
-  box-shadow: var(--glass-hi), inset 3px 0 0 var(--accent);
+  background: #F3F4F6;
   font-weight: 600;
+}
+.menu-btn.active svg {
+  color: var(--accent); /* Blue active icons! */
+}
+.menu-chevron {
+  transition: transform var(--transition);
+}
+.menu-btn:hover .menu-chevron {
+  transform: translateY(1px);
 }
 
 /* Active Tools List in Sidebar */
@@ -168,56 +169,58 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .active-tool-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 14px;
   font-size: 12.5px;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-dark);
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.05);
+  color: var(--accent);
   cursor: pointer;
+  font-weight: 500;
   transition: all var(--transition);
 }
 .active-tool-item:hover {
-  color: var(--text);
-  background: var(--surface-hover);
+  background: rgba(37, 99, 235, 0.08);
 }
 .active-tool-item .dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--green);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .sidebar-footer {
   border-top: 1px solid var(--border);
   padding-top: 16px;
+  margin-top: 12px;
 }
 .sidebar-user-info {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 8px;
+  padding: 0 4px;
 }
 .user-avatar {
-  width: 28px;
-  height: 28px;
-  background: var(--border);
+  width: 32px;
+  height: 32px;
+  background: #E5E7EB;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 11px;
-  color: var(--text);
+  color: var(--text-dark);
 }
 .user-details {
   font-size: 12px;
 }
-.user-name { font-weight: 500; color: var(--text); }
+.user-name { font-weight: 600; color: var(--text); }
 .user-role { color: var(--text-muted); font-size: 11px; }
 
 /* Main Content Area */
@@ -227,39 +230,70 @@ body::before {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  background: transparent;
+  background: var(--bg);
 }
 
 /* Header bar */
 .top-header {
-  min-height: 64px;
-  border-bottom: 1px solid var(--glass-brd);
+  min-height: 72px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 32px;
+  padding: 16px 32px;
   flex-shrink: 0;
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-hi);
+  background: #FFFFFF;
 }
 
 .header-title h1 {
   font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 .header-title p {
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--text-muted);
+  margin-top: 2px;
 }
 .header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Circle Action Buttons in Header */
+.btn-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-dark);
+  transition: all var(--transition);
+  position: relative;
+  padding: 0;
+}
+.btn-circle:hover {
+  background: var(--surface-hover);
+  border-color: #D1D5DB;
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.btn-circle .badge-dot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1.5px solid #FFFFFF;
 }
 
 /* View Panels */
@@ -276,217 +310,110 @@ body::before {
 /* Marketplace View styling */
 .marketplace-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 24px;
   margin-top: 10px;
 }
 
 .tool-card {
   background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-brd);
-  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
   padding: 26px;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition);
-  box-shadow: var(--glass-hi), var(--glass-shadow);
-}
-/* specular sheen */
-.tool-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 22px;
-  pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 44%);
+  box-shadow: var(--glass-shadow);
 }
 .tool-card > * { position: relative; }
-/* yellow accent strip on live tools (the single brand accent) */
-.tool-card.is-live::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 24px;
-  right: 24px;
-  height: 3px;
-  border-radius: 0 0 4px 4px;
-  background: var(--accent);
-}
 .tool-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--glass-hi), 0 28px 56px rgba(30,38,55,0.18);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.04), 0 8px 10px -5px rgba(0, 0, 0, 0.03);
 }
 
-.card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.tool-category {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #48484A; /* Higher contrast gray */
-  padding: 2px 8px;
-  background: var(--bg);
-  border-radius: 99px;
-}
-.tool-status {
+.card-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 99px;
-}
-.tool-status.online {
-  color: #15803D;
-  background: rgba(34, 197, 94, 0.08);
-}
-.tool-status.offline {
-  color: #48484A;
-  background: rgba(0, 0, 0, 0.04);
-}
-.tool-status.coming-soon {
-  color: #0369A1;
-  background: rgba(14, 165, 233, 0.08);
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
+/* Colorful Icon Wrappers */
+.tool-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+.tool-icon-wrapper svg { width: 22px; height: 22px; }
+.tool-card:hover .tool-icon-wrapper {
+  transform: scale(1.05);
+}
+
+/* Tint Classes based on categories */
+.tool-icon-wrapper.tint-orange {
+  background: rgba(245, 158, 11, 0.12);
+  color: #D97706;
+}
+.tool-icon-wrapper.tint-blue {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563EB;
+}
+.tool-icon-wrapper.tint-purple {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7C3AED;
+}
+.tool-icon-wrapper.tint-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+/* Status Badges */
+.tool-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+.tool-status.live {
+  color: #16803D;
+  background: #DCFCE7;
+}
+.tool-status.live .status-dot {
+  background: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+.tool-status.offline {
+  color: #4B5563;
+  background: #F3F4F6;
+}
+.tool-status.offline .status-dot {
+  background: #9CA3AF;
+}
 .tool-status .status-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
-
-.tool-icon-wrapper {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  flex-shrink: 0;
-  color: #3a3f49;
-  background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.35));
-  border: 1px solid rgba(255,255,255,0.8);
-  box-shadow: 0 6px 16px rgba(30,38,55,0.10);
-}
-/* neutral glass icons for both states — yellow stays an accent, not a fill */
-.tool-icon-wrapper.tint-live, .tool-icon-wrapper.tint-soon { color: #3a3f49; }
-.tool-icon-wrapper svg { width: 24px; height: 24px; }
-
-/* ── Marketplace header eyebrow ── */
-.header-eyebrow {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent-hover);
-  margin-bottom: 6px;
-}
-
-/* ── Search + filter toolbar ── */
-.mkt-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 2px 0 22px;
-  flex-wrap: wrap;
-}
-.mkt-search {
-  flex: 1;
-  min-width: 240px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-brd);
-  border-radius: 99px;
-  padding: 13px 18px;
-  color: var(--text-muted);
-  box-shadow: var(--glass-hi), var(--glass-shadow);
-  transition: box-shadow var(--transition);
-}
-.mkt-search:focus-within {
-  box-shadow: var(--glass-hi), 0 0 0 3px rgba(247,181,0,0.18), var(--glass-shadow);
-}
-.mkt-search input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--text);
-}
-.mkt-filters { display: flex; gap: 8px; flex-wrap: wrap; }
-.mkt-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--glass-brd);
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-hi), var(--glass-shadow);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 10px 16px;
-  border-radius: 99px;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.mkt-pill:hover { background: rgba(255,255,255,0.78); }
-.mkt-pill.active { background: #1A1408; color: #fff; border-color: #1A1408; }
-.pill-count {
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(0,0,0,0.06);
-  padding: 1px 7px;
-  border-radius: 99px;
-}
-.mkt-pill.active .pill-count { background: rgba(255,255,255,0.92); color: #1A1408; }
-
-/* ── Card head + status badges ── */
-.card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-.tool-status.live {
-  color: #1A1408;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid var(--glass-brd);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.tool-status.live .status-dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(247,181,0,0.18); }
 .tool-release {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #5b5f68;
-  background: rgba(255,255,255,0.5);
-  border: 1px solid var(--glass-brd);
-  padding: 4px 11px;
+  color: #7C3AED;
+  background: #F3E8FF;
+  padding: 4px 10px;
   border-radius: 99px;
-  letter-spacing: 0.02em;
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .mkt-empty {
   display: flex;
   flex-direction: column;
@@ -500,16 +427,17 @@ body::before {
 
 .tool-title {
   font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 7px;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
   color: var(--text);
+  letter-spacing: -0.01em;
 }
 .tool-desc {
-  font-size: 14px;
-  color: #3A3A3C; /* Darker gray for highly readable descriptions */
+  font-size: 13.5px;
+  color: var(--text-muted);
   line-height: 1.5;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   flex: 1;
 }
 
@@ -517,73 +445,181 @@ body::before {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 .tool-tag {
-  font-size: 12px;
-  color: #48484A; /* Higher contrast gray */
-  background: rgba(0,0,0,0.03);
-  padding: 3px 9px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: #F3F4F6;
+  padding: 2px 8px;
   border-radius: 6px;
+  font-weight: 500;
 }
-.tool-card .btn { font-size: 14px; padding: 12px 16px; font-weight: 600; }
 
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  border: 1px solid var(--glass-brd);
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-hi);
-  color: var(--text);
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  color: var(--text-dark);
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm); /* Standard rounded corner */
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all var(--transition);
   text-decoration: none;
   width: 100%;
 }
 .btn:hover {
-  background: rgba(255,255,255,0.82);
+  background: var(--surface-hover);
+  border-color: #D1D5DB;
+  color: var(--text);
 }
 .btn:disabled {
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: not-allowed;
-  transform: none !important;
 }
 
 .btn-primary {
   background: var(--accent);
-  color: #000000;
+  color: #FFFFFF;
   border-color: var(--accent);
 }
 .btn-primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
-  color: #000000;
+  color: #FFFFFF;
+  transform: translateY(-1px);
 }
 
+/* Premium Charcoal Button for active launch */
 .btn-gold {
-  background: #F7B500; /* Shriram Yellow */
-  color: #000000;
-  border-color: #F7B500;
+  background: #1F2937;
+  color: #FFFFFF;
+  border-color: #1F2937;
 }
 .btn-gold:hover {
-  background: #E0A400;
-  border-color: #E0A400;
-  color: #000000;
+  background: #111827;
+  border-color: #111827;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.btn-notify {
+  background: #FFFFFF;
+  color: var(--text-dark);
+  border-color: var(--border);
+}
+.btn-notify:hover {
+  background: var(--surface-hover);
+  border-color: #D1D5DB;
+  color: var(--text);
+}
+
+/* ── Restructured Search + filter toolbar ── */
+.mkt-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 0px 0 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 0px;
+}
+.mkt-filters {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: -1px; /* Align active tab border overlay with parent border */
+}
+.mkt-pill {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  padding: 12px 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.mkt-pill:hover {
+  color: var(--text);
+}
+.mkt-pill.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+.mkt-pill.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.pill-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: #F3F4F6;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 20px;
+  transition: all var(--transition);
+}
+.mkt-pill.active .pill-count {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent);
+}
+
+.mkt-search {
+  width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 8px 16px;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  margin-bottom: 8px;
+}
+.mkt-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  color: var(--text-dark);
+}
+.mkt-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--text);
+}
+.mkt-search input::placeholder {
+  color: #9CA3AF;
 }
 
 /* Embedded Iframe Viewport View */
 #view-iframe-viewport {
   padding: 0;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 72px);
   display: none;
   flex-direction: column;
 }
@@ -591,8 +627,8 @@ body::before {
   display: flex;
 }
 .viewport-toolbar {
-  height: 44px;
-  background: var(--bg-sidebar);
+  height: 48px;
+  background: #FFFFFF;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -843,7 +879,10 @@ body::before {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 99;
+  /* Must stay below .sidebar (z-index: 10) — this only dims the main content
+     behind the open drawer; placing it above the sidebar would blur the
+     drawer itself and swallow taps meant for its menu items. */
+  z-index: 5;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -962,23 +1001,24 @@ body::before {
         <div class="sidebar-brand-name">Shriram Marketplace</div>
         <div class="sidebar-brand-sub">Financial Hub & Digests</div>
       </div>
+      <!-- Dots Icon matching mockup header menu -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; opacity: 0.6; cursor: pointer;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
     </div>
 
     <div class="sidebar-menu">
-      <span class="menu-title">Main Portal</span>
       <button class="menu-btn active" id="menu-btn-marketplace" onclick="showMarketplace()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Marketplace
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <span>Tools and resources</span>
       </button>
 
       {% if session.get('role') == 'admin' %}
       <button class="menu-btn" id="menu-btn-admin" onclick="showAdminPanel()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Admin Settings
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Admin Settings</span>
       </button>
       {% endif %}
 
-      <span class="menu-title" id="active-tools-title" style="display:none;">Active Tools</span>
+      <span class="menu-title" id="active-tools-title" style="display:none; margin-top: 12px;">Active Tools</span>
       <div class="active-tools-list" id="active-tools-list"></div>
     </div>
 
@@ -990,10 +1030,10 @@ body::before {
           <div class="user-name" title="{{ session.get('mobile', 'User') }}">{{ session.get('mobile', 'User') }}</div>
           <div class="user-role">{{ session.get('role', 'user')|capitalize }}</div>
         </div>
-        <a href="/account/password" title="Change my password" style="margin-left: auto; color: var(--text-dark); display: flex; align-items: center;">
+        <a href="/account/password" title="Change my password" style="margin-left: auto; color: var(--text-dark); display: flex; align-items: center; transition: color 0.2s;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </a>
-        <a href="/logout" title="Log out" style="margin-left: 12px; color: var(--text-dark); display: flex; align-items: center;">
+        <a href="/logout" title="Log out" style="margin-left: 12px; color: var(--text-dark); display: flex; align-items: center; transition: color 0.2s;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </a>
       </div>
@@ -1012,31 +1052,48 @@ body::before {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
       <div class="header-title">
-        <span class="header-eyebrow" id="portal-eyebrow">Main Portal</span>
-        <h1 id="portal-title">Market Portal</h1>
-        <p id="portal-subtitle">Select and run financial reporting and valuation tools. Live apps run locally; upcoming tools can notify you on release.</p>
+        <h1 id="portal-title">Tool research result</h1>
+        <p id="portal-subtitle">Get insights into the top-performing tools</p>
       </div>
       <div class="header-actions">
-        <button class="menu-btn" onclick="loadToolsData()" title="Refresh status" style="padding: 8px 12px;">
+        <!-- Sync Status Button -->
+        <button class="menu-btn" onclick="loadToolsData()" title="Refresh status" style="padding: 8px 14px; border-radius: 99px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Sync Status
         </button>
+
+        <!-- Notification Bell Icon with Badge -->
+        <button class="btn-circle" title="Notifications" onclick="toast('No new notifications')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge-dot"></span>
+        </button>
+
+        <!-- Chat / Feedback Icon -->
+        <button class="btn-circle" title="Messages" onclick="toast('No new messages')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+
+        <!-- User Profile Avatar circle -->
+        <div class="user-avatar" style="width: 36px; height: 36px; cursor: pointer;" onclick="toast('Log in details: {{ session.get('mobile', 'User') }}')">
+          {{ session.get('mobile', 'U')[:2] }}
+        </div>
       </div>
     </header>
 
     <!-- Marketplace Grid View -->
     <section class="view-panel active" id="view-marketplace">
 
-      <!-- Search + filter toolbar -->
+      <!-- Search + filter toolbar restructured: filters left, search right -->
       <div class="mkt-toolbar">
-        <div class="mkt-search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="mkt-search" placeholder="Search tools, tags, categories…" autocomplete="off" oninput="renderMarketplace()">
-        </div>
         <div class="mkt-filters" id="mkt-filters">
-          <button class="mkt-pill active" data-filter="all" onclick="setMarketFilter('all')">All <span class="pill-count" id="count-all">0</span></button>
-          <button class="mkt-pill" data-filter="online" onclick="setMarketFilter('online')">Live <span class="pill-count" id="count-online">0</span></button>
-          <button class="mkt-pill" data-filter="coming-soon" onclick="setMarketFilter('coming-soon')">Coming soon <span class="pill-count" id="count-coming-soon">0</span></button>
+          <button class="mkt-pill active" data-filter="all" onclick="setMarketFilter('all')">All Tools <span class="pill-count" id="count-all">0</span></button>
+          <button class="mkt-pill" data-filter="INFOGRAPHICS" onclick="setMarketFilter('INFOGRAPHICS')">Infographics <span class="pill-count" id="count-infographics">0</span></button>
+          <button class="mkt-pill" data-filter="REPORTS" onclick="setMarketFilter('REPORTS')">Reports <span class="pill-count" id="count-reports">0</span></button>
+          <button class="mkt-pill" data-filter="ANALYTICS" onclick="setMarketFilter('ANALYTICS')">Analytics <span class="pill-count" id="count-analytics">0</span></button>
+        </div>
+        <div class="mkt-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="mkt-search" placeholder="Search tools, tags..." autocomplete="off" oninput="renderMarketplace()">
         </div>
       </div>
 
@@ -1351,18 +1408,20 @@ function renderMarketplace() {
   if (!grid) return;
   const q = (($('#mkt-search') || {}).value || '').trim().toLowerCase();
 
-  // Counts respect the search query but not the active status filter.
+  // Counts respect the search query but not the active category filter.
   const searched = toolsData.filter(t => toolMatchesSearch(t, q));
-  const online = searched.filter(t => t.status === 'online').length;
-  const coming = searched.filter(t => t.status === 'coming-soon').length;
+  const infographicsCount = searched.filter(t => t.category === 'INFOGRAPHICS').length;
+  const reportsCount = searched.filter(t => t.category === 'REPORTS').length;
+  const analyticsCount = searched.filter(t => t.category === 'ANALYTICS').length;
+
   if ($('#count-all')) $('#count-all').textContent = searched.length;
-  if ($('#count-online')) $('#count-online').textContent = online;
-  if ($('#count-coming-soon')) $('#count-coming-soon').textContent = coming;
+  if ($('#count-infographics')) $('#count-infographics').textContent = infographicsCount;
+  if ($('#count-reports')) $('#count-reports').textContent = reportsCount;
+  if ($('#count-analytics')) $('#count-analytics').textContent = analyticsCount;
 
   const visible = searched.filter(t =>
-    marketFilter === 'all' ? true
-    : marketFilter === 'online' ? t.status === 'online'
-    : t.status === 'coming-soon');
+    marketFilter === 'all' ? true : t.category === marketFilter
+  );
 
   grid.innerHTML = '';
   const empty = $('#mkt-empty');
@@ -1375,9 +1434,13 @@ function renderMarketplace() {
     card.className = 'tool-card' + (isOnline ? ' is-live' : isComing ? ' is-soon' : '');
 
     let badge;
-    if (isOnline) badge = `<span class="tool-status live"><span class="status-dot"></span>LIVE</span>`;
-    else if (isComing) badge = `<span class="tool-release">${t.release || 'Soon'}</span>`;
-    else badge = `<span class="tool-status offline"><span class="status-dot"></span>Offline</span>`;
+    if (isOnline) {
+      badge = `<span class="tool-status live"><span class="status-dot"></span>LIVE</span>`;
+    } else if (isComing) {
+      badge = `<span class="tool-release">${t.release || 'Soon'}</span>`;
+    } else {
+      badge = `<span class="tool-status offline"><span class="status-dot"></span>Offline</span>`;
+    }
 
     let actionBtn;
     if (isOnline) {
@@ -1390,18 +1453,24 @@ function renderMarketplace() {
       actionBtn = `<button class="btn" onclick="showOfflineInstructions('${t.id}')">Offline (Setup Info)</button>`;
     }
 
-    const tint = isComing ? 'tint-soon' : 'tint-live';
+    // Determine color tint class for icon wrapper based on ID/Category
+    let tintClass = 'tint-blue';
+    if (t.id === 'samc-micro-digest') tintClass = 'tint-orange';
+    else if (t.id === 'market-digest-pdf') tintClass = 'tint-blue';
+    else if (t.id === 'ai-creatives') tintClass = 'tint-purple';
+    else if (t.id === 'portfolio-optimizer') tintClass = 'tint-green';
+
     const tagsHtml = (t.tags || []).map(tag => `<span class="tool-tag">${tag}</span>`).join('');
 
     card.innerHTML = `
       <div class="card-head">
-        <div class="tool-icon-wrapper ${tint}">${getToolIconSVG(t.icon)}</div>
+        <div class="tool-icon-wrapper ${tintClass}">${getToolIconSVG(t.icon)}</div>
         ${badge}
       </div>
       <h3 class="tool-title">${t.name}</h3>
       <p class="tool-desc">${t.description}</p>
       <div class="tool-tags">${tagsHtml}</div>
-      ${actionBtn}
+      <div class="card-footer">${actionBtn}</div>
     `;
     grid.appendChild(card);
   });
@@ -1467,9 +1536,10 @@ function showMarketplace() {
   $('#view-admin').classList.remove('active');
   $('#view-marketplace').classList.add('active');
   $('#portal-header').style.display = 'flex';
-  $('#portal-eyebrow').textContent = 'Main Portal';
-  $('#portal-title').textContent = 'Market Portal';
-  $('#portal-subtitle').textContent = 'Select and run financial reporting and valuation tools. Live apps run locally; upcoming tools can notify you on release.';
+  const eyebrow = $('#portal-eyebrow');
+  if (eyebrow) eyebrow.textContent = 'Main Portal';
+  $('#portal-title').textContent = 'Tool research result';
+  $('#portal-subtitle').textContent = 'Get insights into the top-performing tools';
 }
 
 function showAdminPanel() {
@@ -1481,7 +1551,8 @@ function showAdminPanel() {
   $('#view-marketplace').classList.remove('active');
   $('#view-admin').classList.add('active');
   $('#portal-header').style.display = 'flex';
-  $('#portal-eyebrow').textContent = 'Administration';
+  const eyebrow = $('#portal-eyebrow');
+  if (eyebrow) eyebrow.textContent = 'Administration';
   $('#portal-title').textContent = 'Control Panel';
   $('#portal-subtitle').textContent = 'Manage user accounts, branding, and activity monitoring.';
 
