@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ── Design Tokens ── */
 :root {
@@ -36,6 +36,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.02);
   --transition: 0.3s cubic-bezier(.4, 0, .2, 1);
   --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: 'Outfit', 'Inter', -apple-system, sans-serif;
 }
 
 /* Reset */
@@ -183,6 +184,253 @@ body.resizing-sidebar {
 }
 body.resizing-sidebar iframe {
   pointer-events: none !important;
+}
+
+/* Horizontal Panel Resizer */
+.panel-resizer {
+  height: 6px;
+  cursor: row-resize;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 150;
+  margin-top: -3px;
+  margin-bottom: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.panel-resizer::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: var(--glass-border);
+  transition: background 0.15s ease, height 0.15s ease;
+}
+.panel-resizer:hover::after,
+.panel-resizer.active::after {
+  background: var(--accent);
+  height: 3px;
+}
+.panel-resizer::before {
+  content: '•••';
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--text-3);
+  position: absolute;
+  background: var(--bg-2);
+  padding: 0 8px;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border);
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  line-height: 1;
+  pointer-events: none;
+}
+.panel-resizer:hover::before,
+.panel-resizer.active::before {
+  opacity: 1;
+  color: var(--text);
+}
+body.resizing-panel {
+  cursor: row-resize !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+body.resizing-panel iframe {
+  pointer-events: none !important;
+}
+
+/* Custom styling for the reload preview icon button */
+.preview-actions .btn-icon {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-2) !important;
+  padding: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: background 0.2s, color 0.2s, transform 0.2s !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.preview-actions .btn-icon:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: var(--text) !important;
+  transform: rotate(30deg) !important;
+}
+.preview-actions .btn-icon:active {
+  transform: scale(0.95) !important;
+}
+
+/* Sidebar Accordions */
+.sidebar-accordion {
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+.sidebar-accordion summary {
+  list-style: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.sidebar-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.sidebar-accordion summary .section-head-sidebar {
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+}
+.sidebar-accordion summary .section-head-sidebar::after {
+  content: '+';
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: transform var(--transition);
+}
+.sidebar-accordion[open] summary .section-head-sidebar::after {
+  content: '−';
+}
+.sidebar-accordion .accordion-content {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Premium Generate button glow and micro-interaction */
+.btn-generate-main {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--accent-glow);
+  transition: all 0.3s ease;
+  font-family: var(--font-display) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+}
+.btn-generate-main:hover {
+  box-shadow: 0 6px 20px rgba(247, 181, 0, 0.35);
+  transform: translateY(-2px);
+  background: var(--accent-hover) !important;
+}
+.btn-generate-main:active {
+  transform: translateY(0);
+}
+
+/* Glassmorphism for Status Cards */
+.sidebar-status-card {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sidebar-status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Dotted designer canvas grid background */
+.main-content {
+  background-image: radial-gradient(rgba(0,0,0,0.06) 1.2px, transparent 1.2px) !important;
+  background-size: 20px 20px !important;
+}
+
+/* Daily card iframe container ambient shadow */
+.preview-frame {
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #FFF;
+}
+
+/* Sidebar titles font upgrade */
+.sidebar-title {
+  font-family: var(--font-display) !important;
+}
+.section-head-sidebar {
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+}
+
+/* Horizontal Panel Resizer */
+.panel-resizer {
+  height: 6px;
+  cursor: row-resize;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 150;
+  margin-top: -3px;
+  margin-bottom: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.panel-resizer::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: var(--glass-border);
+  transition: background 0.15s ease, height 0.15s ease;
+}
+.panel-resizer:hover::after,
+.panel-resizer.active::after {
+  background: var(--accent);
+  height: 3px;
+}
+body.resizing-panel {
+  cursor: row-resize !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+body.resizing-panel iframe {
+  pointer-events: none !important;
+}
+
+/* Custom styling for the reload preview icon button */
+.preview-actions .btn-icon {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-2) !important;
+  padding: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: background 0.2s, color 0.2s, transform 0.2s !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.preview-actions .btn-icon:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: var(--text) !important;
+  transform: rotate(30deg) !important;
+}
+.preview-actions .btn-icon:active {
+  transform: scale(0.95) !important;
 }
 
 .sidebar-brand {
@@ -358,8 +606,9 @@ body.resizing-sidebar iframe {
 .cov-chip {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 6px 8px;
   background: var(--surface-2);
   border: 1px solid var(--glass-border);
   border-radius: 6px;
@@ -374,6 +623,45 @@ body.resizing-sidebar iframe {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+}
+
+.cov-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  cursor: default;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+  padding: 1px;
+  border-radius: 50%;
+}
+.cov-info-icon:hover {
+  color: var(--accent);
+}
+
+/* Tooltip bubble styling — fixed-position, injected by JS to escape overflow:auto sidebar */
+#cov-tooltip {
+  position: fixed;
+  background: #1a1a22;
+  color: #f0f0f5;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: var(--font);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 99999;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.06);
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  transform: translateY(3px);
+}
+#cov-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 .cov-chip .cov-dot {
   width: 6px;
@@ -863,7 +1151,9 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--surface-hover); }
 
-/* Responsive styling */
+/* ── Responsive Styling ── */
+
+/* Tablet (1100px): collapse to single column, sidebar becomes drawer */
 @media (max-width: 1100px) {
   .app-layout {
     flex-direction: column;
@@ -895,30 +1185,469 @@ textarea.field-input { resize: vertical; min-height: 70px; }
     padding: 16px;
   }
 }
-@media (max-width: 600px) {
-  .preview-frame iframe {
-    transform: scale(0.5);
-    transform-origin: top left;
+
+/* Hide mobile-only elements on desktop */
+@media (min-width: 769px) {
+  .mweb-sheet,
+  #mweb-status-strip,
+  #mweb-action-row,
+  #mweb-bottom-nav,
+  #mweb-sheet-overlay {
+    display: none !important;
+  }
+}
+
+/* ── Mobile (768px): Full mweb layout ── */
+@media (max-width: 768px) {
+  /* Allow vertical scrolling on mobile */
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+  }
+  body::before { display: none; } /* hide desktop glow */
+
+  .app-layout {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding-bottom: 72px; /* clear bottom tab bar */
+  }
+
+  /* Mobile header: add right-side generate button */
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    justify-content: space-between;
+    padding: 0 12px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .mobile-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mobile-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Compact status strip */
+  #mweb-status-strip {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 11px;
+    color: var(--text-2);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 56px;
+    z-index: 199;
+  }
+  #mweb-status-strip .strip-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+  }
+  #mweb-status-strip .sep {
+    color: var(--glass-border);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  /* Main content area */
+  .main-content {
+    height: auto;
+    overflow: visible;
+    background-image: none !important; /* hide dot grid on mobile */
+  }
+  #page-dashboard {
+    padding: 12px;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Preview container fills width */
+  .preview-container {
+    height: auto;
+  }
+  .preview-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .preview-tabs {
+    flex: 1;
+  }
+  .preview-zoom {
+    display: none; /* auto-fit on mobile */
   }
   .preview-viewport {
-    min-height: 440px;
+    padding: 0;
+    overflow: visible;
+    min-height: unset;
+    justify-content: center;
+    background: var(--bg);
   }
-  .preview-grid { gap: 18px; }
-}
-@media (max-width: 480px) {
-  .config-drawer {
+  .preview-grid {
+    gap: 0;
     width: 100%;
-    right: -100%;
   }
-  .config-drawer.active {
+  .card-panel {
+    width: 100%;
+    align-items: stretch;
+  }
+  .card-panel-head {
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  /* Auto-scale iframe to fill screen width on mobile */
+  .preview-frame {
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    overflow: hidden !important;
+    background: #fff;
+  }
+  .preview-frame iframe {
+    border: none;
+    background: #fff;
+  }
+
+  /* Mobile action row below preview */
+  #mweb-action-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  #mweb-action-row .mweb-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    background: var(--bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: var(--font);
+    flex: 1;
+    justify-content: center;
+    max-width: 120px;
+  }
+  #mweb-action-row .mweb-action-btn:hover {
+    background: var(--surface-hover);
+  }
+  #mweb-action-row .mweb-action-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* Bottom Tab Bar */
+  #mweb-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
     right: 0;
+    height: 60px;
+    background: var(--bg-2);
+    border-top: 1px solid var(--glass-border);
+    z-index: 500;
+    align-items: stretch;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .mweb-tab-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-3);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: color 0.15s ease, background 0.15s ease;
+    border-radius: 0;
+    padding: 0;
+    letter-spacing: 0.02em;
+    font-family: var(--font);
+  }
+  .mweb-tab-btn svg { transition: transform 0.15s ease; }
+  .mweb-tab-btn.active {
+    color: var(--accent);
+  }
+  .mweb-tab-btn.active svg {
+    transform: translateY(-1px);
+  }
+
+  /* Bottom Sheets */
+  .mweb-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 60px; /* above tab bar */
+    height: 62vh;
+    background: var(--bg-2);
+    border-top: 1px solid var(--glass-border);
+    border-radius: 18px 18px 0 0;
+    z-index: 490;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+  }
+  .mweb-sheet.open {
+    transform: translateY(0);
+  }
+  .mweb-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 4px;
+    cursor: grab;
+    flex-shrink: 0;
+  }
+  .mweb-sheet-handle::after {
+    content: '';
+    width: 36px;
+    height: 4px;
+    background: var(--glass-border);
+    border-radius: 99px;
+  }
+  .mweb-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px 12px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .mweb-sheet-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--font-display);
+  }
+  .mweb-sheet-close {
+    background: var(--surface-2);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-2);
+    font-size: 16px;
+    transition: all 0.15s ease;
+  }
+  .mweb-sheet-close:hover { color: var(--text); }
+  .mweb-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sheet overlay */
+  #mweb-sheet-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 480;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #mweb-sheet-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Inside Status sheet: stat grid */
+  .mweb-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* Hide desktop-only elements in mobile */
+  .sidebar-resizer { display: none !important; }
+  .right-sidebar { display: none !important; }
+
+  /* Toasts above tab bar */
+  .toast-container {
+    bottom: 70px;
+    right: 12px;
+  }
+  .toast {
+    min-width: unset;
+    max-width: calc(100vw - 24px);
+    font-size: 12px;
   }
 }
-@media (max-width: 400px) {
-  .preview-frame iframe {
-    transform: scale(0.5);
-    transform-origin: top left;
-  }
+
+/* SAMC Modals & Lightbox */
+.samc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 0.25s ease;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.samc-modal {
+  background: var(--bg-2);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalPop {
+  from { transform: scale(0.95) translateY(10px); }
+  to   { transform: scale(1) translateY(0); }
+}
+.samc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--surface-2);
+}
+.samc-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.samc-modal-close:hover {
+  background: rgba(0,0,0,0.06);
+  color: var(--text);
+}
+.archive-card {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+.archive-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.archive-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: #f0ede6;
+  overflow: hidden;
+  cursor: pointer;
+}
+.archive-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.3s ease;
+}
+.archive-thumb-wrap:hover img {
+  transform: scale(1.04);
+}
+.archive-card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.archive-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+}
+.archive-meta {
+  font-size: 11px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.archive-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.btn-archive-act {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.btn-archive-act:hover {
+  background: var(--surface-hover);
+}
+.btn-archive-act.primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
 }
 </style>
 </head>
@@ -927,10 +1656,25 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 <div class="app-layout">
   <!-- Mobile Header -->
   <header class="mobile-header">
-    <button class="btn-hamburger" id="btn-hamburger" title="Toggle Sidebar">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <span class="mobile-title">SAMC Micro Digest</span>
+    <div class="mobile-header-left">
+      <button class="btn-hamburger" id="btn-hamburger" title="Toggle Sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="dot" id="mweb-header-dot" style="flex-shrink:0;"></span>
+      <span class="mobile-title">SAMC Micro Digest</span>
+    </div>
+    <div class="mobile-header-right">
+      <button id="btn-mweb-generate" style="
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--accent); color: #000; border: none;
+        border-radius: 8px; font-weight: 700; font-size: 12px;
+        padding: 7px 14px; cursor: pointer; font-family: var(--font);
+        transition: all 0.15s ease;
+      ">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Generate
+      </button>
+    </div>
   </header>
 
   <!-- Left Sidebar -->
@@ -984,21 +1728,26 @@ textarea.field-input { resize: vertical; min-height: 70px; }
       <div class="coverage-grid" id="coverage-grid"></div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="sidebar-section">
-      <div class="section-head-sidebar">Publishing</div>
+    <div class="sidebar-section" style="margin-top:-6px;">
+      <a href="/tools/samc-micro-digest/explainer" target="_blank" class="btn btn-sidebar" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--surface-2); border:1px solid var(--glass-border); color:var(--text); font-weight:600; font-size:12px; padding:8px 12px; border-radius:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Architecture Explainer ↗
+      </a>
+    </div>
+
+    <!-- Quick Actions (Hidden) -->
+    <div class="sidebar-section" style="display:none;">
+      <div class="section-head-sidebar">Actions</div>
       <div class="actions-panel">
         <button class="btn btn-sidebar" id="btn-render-pngs">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 11l3.5-3.5L8 10l2.5-3L14 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Render PNGs
         </button>
-        <button class="btn btn-primary btn-sidebar" id="btn-publish">
+        <button class="btn btn-primary btn-sidebar" id="btn-publish" style="display:none;">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M14 2L7 9M14 2l-5 12-3-6-6-3L14 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Publish to Teams
         </button>
       </div>
-
-      <!-- Hidden standard step indicator items so they still exist for JS checks -->
       <div style="display:none;">
         <span id="pub-step1"></span>
         <span id="pub-step2"></span>
@@ -1007,7 +1756,204 @@ textarea.field-input { resize: vertical; min-height: 70px; }
       </div>
     </div>
 
+    <!-- App Settings Accordion -->
+    <details class="sidebar-accordion" id="settings-accordion">
+      <summary>
+        <div class="section-head-sidebar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Branding & Settings
+          </div>
+        </div>
+      </summary>
+      <div class="accordion-content">
+        <div class="field">
+          <label class="field-label">Background Color</label>
+          <div class="color-row">
+            <div class="color-swatch" id="swatch-bg"><input type="color" id="cfg-bg-color" value="#FCF9F2"></div>
+            <input class="field-input" id="cfg-bg-color-hex" value="#FCF9F2" maxlength="7" style="max-width:120px;">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Brand Yellow</label>
+          <div class="color-row">
+            <div class="color-swatch" id="swatch-yellow"><input type="color" id="cfg-yellow" value="#F7B500"></div>
+            <input class="field-input" id="cfg-yellow-hex" value="#F7B500" maxlength="7" style="max-width:120px;">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Text Color</label>
+          <div class="color-row">
+            <div class="color-swatch" id="swatch-text"><input type="color" id="cfg-text-color" value="#1A1A1A"></div>
+            <input class="field-input" id="cfg-text-color-hex" value="#1A1A1A" maxlength="7" style="max-width:120px;">
+          </div>
+        </div>
+        <div class="field" style="display:none;">
+          <label class="field-label">Active Company (Logo)</label>
+          <select class="field-input" id="cfg-active-company" disabled>
+            <option value="amc" selected>Shriram AMC</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Watermark Mode</label>
+          <select class="field-input" id="cfg-watermark">
+            <option value="both">Both (BSE + NSE)</option>
+            <option value="bse">BSE Only</option>
+            <option value="nse">NSE Only</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Disclaimer Text</label>
+          <textarea class="field-input" id="cfg-disclaimer" rows="3"></textarea>
+        </div>
+        <div class="config-section" style="display:none;">
+          <input class="field-input" id="cfg-webhook" type="text" style="display:none;">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn" id="btn-config-reset" style="flex: 1; font-size: 11px; padding: 6px;">Reset Defaults</button>
+          <button class="btn btn-primary" id="btn-config-save" style="flex: 1; font-size: 11px; padding: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5L6.5 11.5 3 8"/></svg>
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </details>
 
+    <!-- Manual Overrides Accordion -->
+    <details class="sidebar-accordion" id="overrides-accordion">
+      <summary>
+        <div class="section-head-sidebar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Manual Overrides
+          </div>
+        </div>
+      </summary>
+      <div class="accordion-content">
+        <div class="toggle-row" style="background: var(--surface-2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px;">
+          <div>
+            <div class="toggle-label" style="font-size: 11px;">Enable Manual Overrides</div>
+            <div class="toggle-sub" style="font-size: 9px;">Override live-fetched metrics</div>
+          </div>
+          <div class="toggle-track" id="toggle-override" tabindex="0">
+            <div class="toggle-thumb"></div>
+          </div>
+        </div>
+        <div id="override-fields" style="display:none; margin-top:8px;">
+          <div class="field">
+            <label class="field-label">Override Date (DD/MM/YYYY)</label>
+            <input class="field-input ov" id="ov-date" placeholder="e.g. 09/06/2026">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">BSE Value</label>
+              <input class="field-input ov" id="ov-bse_value" placeholder="e.g. 82450">
+            </div>
+            <div class="field">
+              <label class="field-label">BSE Change (pts)</label>
+              <input class="field-input ov" id="ov-bse_change" placeholder="e.g. +325">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">NSE Value</label>
+              <input class="field-input ov" id="ov-nse_value" placeholder="e.g. 24980">
+            </div>
+            <div class="field">
+              <label class="field-label">NSE Change (pts)</label>
+              <input class="field-input ov" id="ov-nse_change" placeholder="e.g. -110">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Midcap Value</label>
+              <input class="field-input ov" id="ov-mid_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">Midcap Change</label>
+              <input class="field-input ov" id="ov-mid_change" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Smallcap Value</label>
+              <input class="field-input ov" id="ov-small_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">Smallcap Change</label>
+              <input class="field-input ov" id="ov-small_change" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">FII/FPI (Cr)</label>
+              <input class="field-input ov" id="ov-fii_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">DII (Cr)</label>
+              <input class="field-input ov" id="ov-dii_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Brent Crude ($/bl)</label>
+              <input class="field-input ov" id="ov-brent_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">Gold ($/oz)</label>
+              <input class="field-input ov" id="ov-gold_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Silver ($/oz)</label>
+              <input class="field-input ov" id="ov-silver_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">USD/INR</label>
+              <input class="field-input ov" id="ov-usdinr_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">G-Sec Yield (%)</label>
+              <input class="field-input ov" id="ov-gsec_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">Nifty 50 PE</label>
+              <input class="field-input ov" id="ov-pe_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">India VIX</label>
+              <input class="field-input ov" id="ov-vix_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">US 10Y Yield (%)</label>
+              <input class="field-input ov" id="ov-us10y_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">$ Index (DXY)</label>
+              <input class="field-input ov" id="ov-dxy_value" placeholder="">
+            </div>
+            <div class="field">
+              <label class="field-label">Nifty Midcap 100 PE</label>
+              <input class="field-input ov" id="ov-midcap_pe_value" placeholder="">
+            </div>
+          </div>
+          <div class="field-row" style="margin-bottom:12px;">
+            <div class="field">
+              <label class="field-label">Nifty Smallcap 100 PE</label>
+              <input class="field-input ov" id="ov-smallcap_pe_value" placeholder="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
 
     <!-- Activity Log -->
     <div class="sidebar-section log-section" style="flex: 1; min-height: 140px; display: flex; flex-direction: column;">
@@ -1095,220 +2041,10 @@ textarea.field-input { resize: vertical; min-height: 70px; }
       </div>
     </section>
 
-    <!-- ════════════ CONFIGURE (Slide-over Drawer) ════════════ -->
-    <section class="page config-drawer" id="page-configure">
-      <div class="drawer-header">
-        <h2>Configuration Settings</h2>
-        <button class="btn-close-drawer" id="btn-close-drawer" title="Close Settings">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-
-      <div class="drawer-content">
-        <!-- Branding Section -->
-        <div class="config-section">
-          <h3>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
-            Branding & Layout
-          </h3>
-          <div class="field">
-            <label class="field-label">Background Color</label>
-            <div class="color-row">
-              <div class="color-swatch" id="swatch-bg"><input type="color" id="cfg-bg-color" value="#FCF9F2"></div>
-              <input class="field-input" id="cfg-bg-color-hex" value="#FCF9F2" maxlength="7" style="max-width:120px;">
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label">Brand Yellow</label>
-            <div class="color-row">
-              <div class="color-swatch" id="swatch-yellow"><input type="color" id="cfg-yellow" value="#F7B500"></div>
-              <input class="field-input" id="cfg-yellow-hex" value="#F7B500" maxlength="7" style="max-width:120px;">
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label">Text Color</label>
-            <div class="color-row">
-              <div class="color-swatch" id="swatch-text"><input type="color" id="cfg-text-color" value="#1A1A1A"></div>
-              <input class="field-input" id="cfg-text-color-hex" value="#1A1A1A" maxlength="7" style="max-width:120px;">
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label">Active Company (Logo)</label>
-            <select class="field-input" id="cfg-active-company">
-              <option value="wealth">Shriram Wealth</option>
-              <option value="amc">Shriram AMC</option>
-              <option value="insights">Shriram Insights</option>
-              <option value="financial">Shriram Financial Services</option>
-            </select>
-          </div>
-          <div class="field">
-            <label class="field-label">Watermark Mode</label>
-            <select class="field-input" id="cfg-watermark">
-              <option value="both">Both (BSE + NSE)</option>
-              <option value="bse">BSE Only</option>
-              <option value="nse">NSE Only</option>
-              <option value="none">None</option>
-            </select>
-          </div>
-          <div class="field">
-            <label class="field-label">Disclaimer Text</label>
-            <textarea class="field-input" id="cfg-disclaimer" rows="3"></textarea>
-          </div>
-        </div>
-
-        <!-- Webhook Section -->
-        <div class="config-section">
-          <h3>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-            Teams Notification Integration
-          </h3>
-          <div class="field">
-            <label class="field-label">Webhook URL</label>
-            <input class="field-input" id="cfg-webhook" type="text" placeholder="https://outlook.office.com/webhook/... URL" spellcheck="false" autocomplete="off">
-          </div>
-        </div>
-
-        <!-- Overrides Section -->
-        <div class="config-section">
-          <h3>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Manual Data Overrides
-          </h3>
-          <div class="toggle-row">
-            <div>
-              <div class="toggle-label">Enable Manual Overrides</div>
-              <div class="toggle-sub">Override live-fetched data with custom values</div>
-            </div>
-            <div class="toggle-track" id="toggle-override" tabindex="0">
-              <div class="toggle-thumb"></div>
-            </div>
-          </div>
-          <div id="override-fields" style="display:none;margin-top:16px;">
-            <div class="field">
-              <label class="field-label">Override Date (DD/MM/YYYY)</label>
-              <input class="field-input ov" id="ov-date" placeholder="e.g. 09/06/2026">
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">BSE Value</label>
-                <input class="field-input ov" id="ov-bse_value" placeholder="e.g. 82450">
-              </div>
-              <div class="field">
-                <label class="field-label">BSE Change (pts)</label>
-                <input class="field-input ov" id="ov-bse_change" placeholder="e.g. +325">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">NSE Value</label>
-                <input class="field-input ov" id="ov-nse_value" placeholder="e.g. 24980">
-              </div>
-              <div class="field">
-                <label class="field-label">NSE Change (pts)</label>
-                <input class="field-input ov" id="ov-nse_change" placeholder="e.g. -110">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">Midcap Value</label>
-                <input class="field-input ov" id="ov-mid_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">Midcap Change</label>
-                <input class="field-input ov" id="ov-mid_change" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">Smallcap Value</label>
-                <input class="field-input ov" id="ov-small_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">Smallcap Change</label>
-                <input class="field-input ov" id="ov-small_change" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">FII/FPI (Cr)</label>
-                <input class="field-input ov" id="ov-fii_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">DII (Cr)</label>
-                <input class="field-input ov" id="ov-dii_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">Brent Crude ($/bl)</label>
-                <input class="field-input ov" id="ov-brent_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">Gold ($/oz)</label>
-                <input class="field-input ov" id="ov-gold_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">Silver ($/oz)</label>
-                <input class="field-input ov" id="ov-silver_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">USD/INR</label>
-                <input class="field-input ov" id="ov-usdinr_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">G-Sec Yield (%)</label>
-                <input class="field-input ov" id="ov-gsec_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">Nifty 50 PE</label>
-                <input class="field-input ov" id="ov-pe_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">India VIX</label>
-                <input class="field-input ov" id="ov-vix_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">US 10Y Yield (%)</label>
-                <input class="field-input ov" id="ov-us10y_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">$ Index (DXY)</label>
-                <input class="field-input ov" id="ov-dxy_value" placeholder="">
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label class="field-label">Nifty Midcap 100 PE</label>
-                <input class="field-input ov" id="ov-midcap_pe_value" placeholder="">
-              </div>
-              <div class="field">
-                <label class="field-label">Nifty Smallcap 100 PE</label>
-                <input class="field-input ov" id="ov-smallcap_pe_value" placeholder="">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="drawer-footer">
-        <button class="btn" id="btn-config-reset">Reset Defaults</button>
-        <button class="btn btn-primary" id="btn-config-save">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5L6.5 11.5 3 8"/></svg>
-          Save Config
-        </button>
-      </div>
-    </section>
-
     <!-- Overlay backdrop for drawer and mobile menu -->
     <div class="drawer-overlay" id="drawer-overlay"></div>
+    <div id="page-configure" style="display:none;"></div>
+    <div id="btn-close-drawer" style="display:none;"></div>
     
   </main>
 
@@ -1327,6 +2063,17 @@ textarea.field-input { resize: vertical; min-height: 70px; }
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Edit Card
         </button>
+
+        <div style="display: flex; gap: 6px;">
+          <button class="btn" id="btn-previous-days" onclick="openPreviousDaysModal()" title="View previous daily images" style="flex: 1; justify-content: center; padding: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Previous Days
+          </button>
+          <button class="btn" id="btn-data-sources" onclick="openDataSourcesModal()" title="View Data Sources & Disclosures" style="flex: 1; justify-content: center; padding: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Data Sources
+          </button>
+        </div>
 
         <!-- Undo / Redo Toolbar (visible in edit mode) -->
         <div id="edit-toolbar-strip" style="display: none; flex-direction: row; gap: 4px; padding: 6px 0; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);">
@@ -1364,6 +2111,7 @@ textarea.field-input { resize: vertical; min-height: 70px; }
         <div style="color: var(--text-3); text-align: center; padding-top: 30px; font-size:11px;">Enable Edit Mode to view layers</div>
       </div>
     </div>
+    <div class="panel-resizer" id="panel-resizer-1"></div>
 
     <!-- Design Properties Panel -->
     <div class="sidebar-section" id="sidebar-properties-section" style="display:none; flex: 1.4; flex-direction: column; min-height: 250px; border-top: 1px solid var(--glass-border); padding-top: 14px;">
@@ -1373,236 +2121,230 @@ textarea.field-input { resize: vertical; min-height: 70px; }
       </div>
       <div id="properties-panel-content" style="flex: 1; overflow-y: auto; background: var(--surface-2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px; margin-top: 6px; font-size: 11px; max-height: 480px;">
         <div id="prop-placeholder" style="color: var(--text-3); text-align: center; padding-top: 40px;">Select an element to edit properties</div>
-        <div id="prop-form" style="display:none; flex-direction: column; gap: 10px;">
+        <div id="prop-form" style="display:none; flex-direction: column; gap: 12px;">
           <!-- Selected Element type indicator -->
           <div style="display:flex; justify-content:space-between; font-weight:700; color:var(--text-2); border-bottom:1px solid var(--glass-border); padding-bottom:6px; margin-bottom:4px;">
             <span>Selected Element:</span>
             <span id="prop-val-tag" style="color:var(--accent);">DIV</span>
           </div>
 
-          <!-- Layering / Arrange -->
-          <div class="field" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 4px;">
-            <label class="field-label">Arrange Layer Order</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px;">
-              <button class="btn btn-sm" id="prop-btn-bring-front" title="Bring to Front" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 11 12 6 7 11"></polyline><polyline points="17 18 12 13 7 18"></polyline></svg>
-                Bring to Front
-              </button>
-              <button class="btn btn-sm" id="prop-btn-bring-forward" title="Bring Forward" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                Bring Forward
-              </button>
-              <button class="btn btn-sm" id="prop-btn-send-backward" title="Send Backward" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                Send Backward
-              </button>
-              <button class="btn btn-sm" id="prop-btn-send-back" title="Send to Back" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
-                Send to Back
-              </button>
-            </div>
-          </div>
-          
-          <!-- Text Content -->
-          <div class="field" id="prop-field-text">
-            <label class="field-label">Text Content</label>
-            <textarea class="field-input" id="prop-input-text" rows="2" style="font-size:11px; padding:6px;"></textarea>
-          </div>
-          
-          <!-- Position X & Y -->
-          <div class="field">
-            <label class="field-label">Position Offset (Relative)</label>
-            <div class="field-row">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3);">X:</span>
-                <input class="field-input" type="number" id="prop-input-left" style="padding:4px 6px;">
-              </div>
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3);">Y:</span>
-                <input class="field-input" type="number" id="prop-input-top" style="padding:4px 6px;">
+          <!-- Group 1: Layout & Position -->
+          <div class="inspector-group">
+            <div class="inspector-group-title">Layout & Position</div>
+            <div class="field">
+              <label class="field-label">Arrange Layer Order</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px;">
+                <button class="btn btn-sm" id="prop-btn-bring-front" title="Bring to Front" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 11 12 6 7 11"></polyline><polyline points="17 18 12 13 7 18"></polyline></svg>
+                  Bring to Front
+                </button>
+                <button class="btn btn-sm" id="prop-btn-bring-forward" title="Bring Forward" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  Bring Forward
+                </button>
+                <button class="btn btn-sm" id="prop-btn-send-backward" title="Send Backward" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  Send Backward
+                </button>
+                <button class="btn btn-sm" id="prop-btn-send-back" title="Send to Back" style="padding: 4px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--glass-border); background: var(--surface); color: var(--text);">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
+                  Send to Back
+                </button>
               </div>
             </div>
-          </div>
-
-          <!-- Typography Size & Align -->
-          <div class="field" id="prop-field-typo">
-            <label class="field-label">Typography</label>
-            <div class="field-row" style="margin-bottom:6px;">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:10px;">Size:</span>
-                <input class="field-input" type="number" id="prop-input-size" style="padding:4px 6px;">
-              </div>
-              <select class="field-input" id="prop-input-weight" style="padding:4px 6px; font-size:10px; min-width:80px;">
-                <option value="">Weight: Default</option>
-                <option value="normal">Normal</option>
-                <option value="500">Medium</option>
-                <option value="600">Semibold</option>
-                <option value="700">Bold</option>
-                <option value="800">Extra Bold</option>
-              </select>
-            </div>
-            <div class="field-row" style="margin-bottom:6px;">
-              <select class="field-input" id="prop-input-align" style="padding:4px 6px; font-size:10px;">
-                <option value="">Align: Default</option>
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-              <select class="field-input" id="prop-input-family" style="padding:4px 6px; font-size:10px;">
-                <option value="">Font: Default</option>
-                <option value="Montserrat, sans-serif">Montserrat</option>
-                <option value="'Open Sans', sans-serif">Open Sans</option>
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="Georgia, serif">Georgia</option>
-                <option value="'Courier New', monospace">Monospace</option>
-              </select>
-            </div>
-            <div class="field-row" style="margin-bottom:6px;">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px; white-space:nowrap;">L-Height:</span>
-                <input class="field-input" type="text" id="prop-input-lineheight" style="padding:4px 6px;" placeholder="normal">
-              </div>
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px; white-space:nowrap;">Spacing:</span>
-                <input class="field-input" type="text" id="prop-input-letterspacing" style="padding:4px 6px;" placeholder="normal">
+            <div class="field">
+              <label class="field-label">Position Offset (Relative)</label>
+              <div class="field-row">
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3);">X:</span>
+                  <input class="field-input" type="number" id="prop-input-left" style="padding:4px 6px; width: 100%;">
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3);">Y:</span>
+                  <input class="field-input" type="number" id="prop-input-top" style="padding:4px 6px; width: 100%;">
+                </div>
               </div>
             </div>
-            <div class="field-row">
-              <select class="field-input" id="prop-input-transform" style="padding:4px 6px; font-size:10px; grid-column: span 2;">
-                <option value="">Transform: Default</option>
-                <option value="none">None</option>
-                <option value="uppercase">UPPERCASE</option>
-                <option value="lowercase">lowercase</option>
-                <option value="capitalize">Capitalize</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Colors (Text & Background) -->
-          <div class="field">
-            <label class="field-label">Colors</label>
-            <div class="field-row" style="margin-bottom:6px;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="color:var(--text-3); font-size:10px;">Text:</span>
-                <input type="color" id="prop-color-text" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
-                <input class="field-input" type="text" id="prop-color-text-hex" style="padding:2px 4px; font-size:10px; max-width:65px;" placeholder="#000">
+            <div class="field">
+              <label class="field-label">Dimensions & Scale</label>
+              <div class="field-row" style="margin-bottom: 6px;">
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px;">Width:</span>
+                  <input class="field-input" type="text" id="prop-input-width" style="padding:4px 6px; width: 100%;" placeholder="auto">
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px;">Height:</span>
+                  <input class="field-input" type="text" id="prop-input-height" style="padding:4px 6px; width: 100%;" placeholder="auto">
+                </div>
               </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="color:var(--text-3); font-size:10px;">BG:</span>
-                <input type="color" id="prop-color-bg" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
-                <input class="field-input" type="text" id="prop-color-bg-hex" style="padding:2px 4px; font-size:10px; max-width:65px;" placeholder="#fff">
+              <div class="field-row">
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px;">Scale:</span>
+                  <input class="field-input" type="number" step="0.05" min="0.1" max="5" id="prop-input-scale" style="padding:4px 6px; width: 100%;" placeholder="1">
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px;">Z-Index:</span>
+                  <input class="field-input" type="number" id="prop-pos-zindex" style="padding:4px 6px; width: 100%;">
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Display & Opacity</label>
+              <div class="field-row">
+                <select class="field-input" id="prop-layout-display" style="padding:4px; font-size:10px; flex: 1.2;">
+                  <option value="">Display: Default</option>
+                  <option value="block">Block</option>
+                  <option value="inline-block">Inline-Block</option>
+                  <option value="flex">Flex</option>
+                  <option value="grid">Grid</option>
+                  <option value="none">None</option>
+                </select>
+                <div style="display:flex; align-items:center; gap:4px; flex: 0.8;">
+                  <span style="color:var(--text-3); font-size:9px;">Opacity:</span>
+                  <input class="field-input" type="number" id="prop-input-opacity" min="0" max="100" style="padding:4px 6px; width: 100%;" placeholder="100">
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Spacing (Margins) -->
-          <div class="field">
-            <label class="field-label">Margins</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:4px;">
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Top</span><input class="field-input sp" type="number" id="prop-margin-top" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Bottom</span><input class="field-input sp" type="number" id="prop-margin-bottom" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Left</span><input class="field-input sp" type="number" id="prop-margin-left" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Right</span><input class="field-input sp" type="number" id="prop-margin-right" style="padding:3px; font-size:10px; text-align:center;"></div>
+          <!-- Group 2: Typography -->
+          <div class="inspector-group" id="prop-field-typo-group">
+            <div class="inspector-group-title">Typography</div>
+            <div class="field" id="prop-field-text">
+              <label class="field-label">Text Content</label>
+              <textarea class="field-input" id="prop-input-text" rows="2" style="font-size:11px; padding:6px; width: 100%;"></textarea>
             </div>
-          </div>
-
-          <!-- Spacing (Paddings) -->
-          <div class="field">
-            <label class="field-label">Paddings</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:4px;">
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Top</span><input class="field-input sp" type="number" id="prop-padding-top" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Bottom</span><input class="field-input sp" type="number" id="prop-padding-bottom" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Left</span><input class="field-input sp" type="number" id="prop-padding-left" style="padding:3px; font-size:10px; text-align:center;"></div>
-              <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Right</span><input class="field-input sp" type="number" id="prop-padding-right" style="padding:3px; font-size:10px; text-align:center;"></div>
-            </div>
-          </div>
-
-          <!-- Extra Settings -->
-          <div class="field">
-            <label class="field-label">Border Radius & Z-Index</label>
-            <div class="field-row">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px;">Radius:</span>
-                <input class="field-input" type="number" id="prop-border-radius" style="padding:4px 6px;">
-              </div>
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px;">Z-Index:</span>
-                <input class="field-input" type="number" id="prop-pos-zindex" style="padding:4px 6px;">
-              </div>
-            </div>
-          </div>
-
-          <!-- Dimensions & Scale -->
-          <div class="field">
-            <label class="field-label">Dimensions & Scale</label>
-            <div class="field-row" style="margin-bottom: 6px;">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px;">Width:</span>
-                <input class="field-input" type="text" id="prop-input-width" style="padding:4px 6px;" placeholder="auto">
-              </div>
-              <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px;">Height:</span>
-                <input class="field-input" type="text" id="prop-input-height" style="padding:4px 6px;" placeholder="auto">
-              </div>
-            </div>
-            <div class="field-row">
-              <div style="display:flex; align-items:center; gap:4px; flex: 1;">
-                <span style="color:var(--text-3); font-size:9px;">Scale:</span>
-                <input class="field-input" type="number" step="0.05" min="0.1" max="5" id="prop-input-scale" style="padding:4px 6px;" placeholder="1">
-              </div>
-              <div style="flex: 1;"></div>
-            </div>
-          </div>
-
-          <!-- Borders -->
-          <div class="field">
-            <label class="field-label">Borders</label>
-            <div class="field-row" style="margin-bottom:6px;">
-              <div style="display:flex; align-items:center; gap:4px; flex:1.2;">
-                <span style="color:var(--text-3); font-size:9px;">Style:</span>
-                <select class="field-input" id="prop-border-style" style="padding:4px; font-size:10px;">
-                  <option value="">None/Default</option>
-                  <option value="solid">Solid</option>
-                  <option value="dashed">Dashed</option>
-                  <option value="dotted">Dotted</option>
-                  <option value="double">Double</option>
+            <div class="field" id="prop-field-typo">
+              <div class="field-row" style="margin-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:10px;">Size:</span>
+                  <input class="field-input" type="number" id="prop-input-size" style="padding:4px 6px; width: 100%;">
+                </div>
+                <select class="field-input" id="prop-input-weight" style="padding:4px 6px; font-size:10px; min-width:80px; flex: 1;">
+                  <option value="">Weight: Default</option>
+                  <option value="normal">Normal</option>
+                  <option value="500">Medium</option>
+                  <option value="600">Semibold</option>
+                  <option value="700">Bold</option>
+                  <option value="800">Extra Bold</option>
                 </select>
               </div>
-              <div style="display:flex; align-items:center; gap:4px; flex:0.8;">
-                <span style="color:var(--text-3); font-size:9px;">Width:</span>
-                <input class="field-input" type="number" id="prop-border-width" style="padding:4px; font-size:10px;" placeholder="0">
+              <div class="field-row" style="margin-bottom:6px;">
+                <select class="field-input" id="prop-input-align" style="padding:4px 6px; font-size:10px; flex: 1;">
+                  <option value="">Align: Default</option>
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+                <select class="field-input" id="prop-input-family" style="padding:4px 6px; font-size:10px; flex: 1;">
+                  <option value="">Font: Default</option>
+                  <option value="Montserrat, sans-serif">Montserrat</option>
+                  <option value="'Open Sans', sans-serif">Open Sans</option>
+                  <option value="Arial, sans-serif">Arial</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="'Courier New', monospace">Monospace</option>
+                </select>
               </div>
-            </div>
-            <div class="field-row">
-              <div style="display:flex; align-items:center; gap:6px; grid-column: span 2;">
-                <span style="color:var(--text-3); font-size:10px;">Color:</span>
-                <input type="color" id="prop-color-border" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
-                <input class="field-input" type="text" id="prop-color-border-hex" style="padding:2px 4px; font-size:10px; max-width:85px;" placeholder="#000">
+              <div class="field-row" style="margin-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px; white-space:nowrap;">L-Height:</span>
+                  <input class="field-input" type="text" id="prop-input-lineheight" style="padding:4px 6px; width: 100%;" placeholder="normal">
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:9px; white-space:nowrap;">Spacing:</span>
+                  <input class="field-input" type="text" id="prop-input-letterspacing" style="padding:4px 6px; width: 100%;" placeholder="normal">
+                </div>
+              </div>
+              <div class="field-row">
+                <select class="field-input" id="prop-input-transform" style="padding:4px 6px; font-size:10px; width: 100%;">
+                  <option value="">Transform: Default</option>
+                  <option value="none">None</option>
+                  <option value="uppercase">UPPERCASE</option>
+                  <option value="lowercase">lowercase</option>
+                  <option value="capitalize">Capitalize</option>
+                </select>
               </div>
             </div>
           </div>
 
-          <!-- Layout & Opacity -->
-          <div class="field">
-            <label class="field-label">Display & Opacity</label>
-            <div class="field-row">
-              <select class="field-input" id="prop-layout-display" style="padding:4px; font-size:10px;">
-                <option value="">Display: Default</option>
-                <option value="block">Block</option>
-                <option value="inline-block">Inline-Block</option>
-                <option value="flex">Flex</option>
-                <option value="grid">Grid</option>
-                <option value="none">None</option>
-              </select>
+          <!-- Group 3: Styling & Borders -->
+          <div class="inspector-group">
+            <div class="inspector-group-title">Styling & Borders</div>
+            <div class="field">
+              <label class="field-label">Colors</label>
+              <div class="field-row">
+                <div style="display:flex; align-items:center; gap:6px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:10px;">Text:</span>
+                  <input type="color" id="prop-color-text" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
+                  <input class="field-input" type="text" id="prop-color-text-hex" style="padding:2px 4px; font-size:10px; max-width:65px;" placeholder="#000">
+                </div>
+                <div style="display:flex; align-items:center; gap:6px; flex: 1;">
+                  <span style="color:var(--text-3); font-size:10px;">BG:</span>
+                  <input type="color" id="prop-color-bg" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
+                  <input class="field-input" type="text" id="prop-color-bg-hex" style="padding:2px 4px; font-size:10px; max-width:65px;" placeholder="#fff">
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Borders</label>
+              <div class="field-row" style="margin-bottom:6px;">
+                <div style="display:flex; align-items:center; gap:4px; flex:1.2;">
+                  <span style="color:var(--text-3); font-size:9px;">Style:</span>
+                  <select class="field-input" id="prop-border-style" style="padding:4px; font-size:10px; width: 100%;">
+                    <option value="">None/Default</option>
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="double">Double</option>
+                  </select>
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex:0.8;">
+                  <span style="color:var(--text-3); font-size:9px;">Width:</span>
+                  <input class="field-input" type="number" id="prop-border-width" style="padding:4px; font-size:10px; width: 100%;" placeholder="0">
+                </div>
+              </div>
+              <div class="field-row">
+                <div style="display:flex; align-items:center; gap:6px; width: 100%;">
+                  <span style="color:var(--text-3); font-size:10px;">Border Color:</span>
+                  <input type="color" id="prop-color-border" style="width:20px; height:20px; border:none; padding:0; background:transparent; cursor:pointer;">
+                  <input class="field-input" type="text" id="prop-color-border-hex" style="padding:2px 4px; font-size:10px; max-width:85px;" placeholder="#000">
+                </div>
+              </div>
+            </div>
+            <div class="field">
               <div style="display:flex; align-items:center; gap:4px;">
-                <span style="color:var(--text-3); font-size:9px;">Opacity:</span>
-                <input class="field-input" type="number" id="prop-input-opacity" min="0" max="100" style="padding:4px 6px;" placeholder="100">
+                <span style="color:var(--text-2); font-weight: 500;">Border Radius:</span>
+                <input class="field-input" type="number" id="prop-border-radius" style="padding:4px 6px; width: 80px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Group 4: Spacing -->
+          <div class="inspector-group">
+            <div class="inspector-group-title">Spacing</div>
+            <div class="field">
+              <label class="field-label">Margins</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:4px;">
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Top</span><input class="field-input sp" type="number" id="prop-margin-top" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Bottom</span><input class="field-input sp" type="number" id="prop-margin-bottom" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Left</span><input class="field-input sp" type="number" id="prop-margin-left" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Right</span><input class="field-input sp" type="number" id="prop-margin-right" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Paddings</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:4px;">
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Top</span><input class="field-input sp" type="number" id="prop-padding-top" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Bottom</span><input class="field-input sp" type="number" id="prop-padding-bottom" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Left</span><input class="field-input sp" type="number" id="prop-padding-left" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
+                <div style="text-align:center;"><span style="font-size:9px; color:var(--text-3);">Right</span><input class="field-input sp" type="number" id="prop-padding-right" style="padding:3px; font-size:10px; text-align:center; width: 100%;"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="panel-resizer" id="panel-resizer-2" style="display:none;"></div>
 
     <!-- Version History Panel -->
     <div class="sidebar-section" id="sidebar-version-section" style="border-top: 1px solid var(--glass-border); padding-top: 14px;">
@@ -1624,6 +2366,109 @@ textarea.field-input { resize: vertical; min-height: 70px; }
   </aside>
 
   </div>
+
+<!-- ── mweb: Compact Status Strip (mobile only, hidden on desktop) ── -->
+<div id="mweb-status-strip" style="display:none;">
+  <div class="strip-item">
+    <span class="dot" id="mweb-strip-dot"></span>
+    <span id="mweb-strip-status">Connecting…</span>
+  </div>
+  <span class="sep">|</span>
+  <div class="strip-item">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Coverage: <span id="mweb-strip-coverage">—</span>
+  </div>
+  <span class="sep">|</span>
+  <div class="strip-item">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span id="mweb-strip-time">—</span>
+  </div>
+</div>
+
+<!-- ── mweb: Card Action Row (mobile only, below preview) ── -->
+<div id="mweb-action-row" style="display:none;">
+  <button class="mweb-action-btn" id="mweb-btn-copy" title="Copy card image">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    Copy
+  </button>
+  <button class="mweb-action-btn" id="mweb-btn-download" title="Download card PNG">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download
+  </button>
+  <button class="mweb-action-btn" id="mweb-btn-share" title="Share to WhatsApp">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    Share
+  </button>
+</div>
+
+<!-- ── mweb: Bottom Sheet Overlay ── -->
+<div id="mweb-sheet-overlay"></div>
+
+<!-- ── mweb: Status Bottom Sheet ── -->
+<div class="mweb-sheet" id="mweb-sheet-status">
+  <div class="mweb-sheet-handle"></div>
+  <div class="mweb-sheet-header">
+    <span class="mweb-sheet-title">Status</span>
+    <button class="mweb-sheet-close" data-sheet="status">✕</button>
+  </div>
+  <div class="mweb-sheet-body">
+    <div class="mweb-stat-grid">
+      <div class="sidebar-status-card">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" id="mweb-stat-status">—</div>
+        <div class="stat-sub" id="mweb-stat-status-sub">Checking…</div>
+      </div>
+      <div class="sidebar-status-card">
+        <div class="stat-label">Generated</div>
+        <div class="stat-value" id="mweb-stat-time">—</div>
+        <div class="stat-sub" id="mweb-stat-time-sub">&nbsp;</div>
+      </div>
+      <div class="sidebar-status-card">
+        <div class="stat-label">Chrome/Edge</div>
+        <div class="stat-value" id="mweb-stat-chrome">—</div>
+        <div class="stat-sub" id="mweb-stat-chrome-sub">Screenshot</div>
+      </div>
+      <div class="sidebar-status-card">
+        <div class="stat-label">Coverage</div>
+        <div class="stat-value" id="mweb-stat-coverage">—</div>
+        <div class="stat-sub" id="mweb-stat-coverage-sub">&nbsp;</div>
+      </div>
+    </div>
+    <!-- Activity log inside status sheet -->
+    <div style="font-size:11px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Activity Log</div>
+    <div class="log-box" id="mweb-log-box" style="max-height: 160px;">
+      <div class="log-line"><span class="ts">[--:--]</span> Waiting…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── mweb: Coverage Bottom Sheet ── -->
+<div class="mweb-sheet" id="mweb-sheet-coverage">
+  <div class="mweb-sheet-handle"></div>
+  <div class="mweb-sheet-header">
+    <span class="mweb-sheet-title">Coverage <span id="mweb-cov-badge" style="font-size:11px; background:var(--accent); color:#000; padding:1px 7px; border-radius:99px; margin-left:6px; font-weight:700;">0/0</span></span>
+    <button class="mweb-sheet-close" data-sheet="coverage">✕</button>
+  </div>
+  <div class="mweb-sheet-body">
+    <div class="coverage-grid" id="mweb-coverage-grid"></div>
+  </div>
+</div>
+
+<!-- ── mweb: Bottom Tab Bar (mobile only) ── -->
+<nav id="mweb-bottom-nav" style="display:none;">
+  <button class="mweb-tab-btn" id="mweb-tab-status" data-sheet="status">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Status
+  </button>
+  <button class="mweb-tab-btn" id="mweb-tab-coverage" data-sheet="coverage">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Coverage
+  </button>
+  <button class="mweb-tab-btn" id="mweb-tab-settings" data-sheet="settings">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9z"/></svg>
+    Settings
+  </button>
+</nav>
 
 <div class="toast-container" id="toast-container"></div>
 <script>
@@ -1676,6 +2521,29 @@ async function api(path, opts = {}) {
   const r = await fetch(finalPath, opts);
   return r.json();
 }
+
+/* ─── Panel Resizer Logic ─── */
+$$('.panel-resizer').forEach(resizer => {
+  resizer.addEventListener('mousedown', e => {
+    e.preventDefault();
+    const prev = resizer.previousElementSibling;
+    const next = resizer.nextElementSibling;
+    const startY = e.clientY;
+    const startH = prev.clientHeight;
+
+    function doDrag(e) {
+      const delta = e.clientY - startY;
+      prev.style.flex = 'none';
+      prev.style.height = (startH + delta) + 'px';
+    }
+    function stopDrag() {
+      document.removeEventListener('mousemove', doDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', stopDrag);
+  });
+});
 
 /* ─── Tabs ─── */
 $$('.tab-btn').forEach(btn => {
@@ -1730,6 +2598,18 @@ async function loadStatus() {
       $('#stat-chrome-sub').textContent = 'PNG export unavailable';
     }
 
+    // Role-based UI visibility
+    const role = s.user_role || 'admin';
+    const btnGear = document.getElementById('btn-settings-gear');
+    const settingsAcc = document.getElementById('settings-accordion');
+    if (role !== 'admin') {
+      if (btnGear) btnGear.style.display = 'none';
+      if (settingsAcc) settingsAcc.style.display = 'none';
+    } else {
+      if (btnGear) btnGear.style.display = 'flex';
+      if (settingsAcc) settingsAcc.style.display = 'block';
+    }
+
     // Coverage
     renderCoverage(s.coverage || {});
 
@@ -1753,6 +2633,20 @@ const COV_LABELS = {
   news: 'News Headlines',
 };
 
+const COV_SOURCES = {
+  bse: 'Yahoo Finance (^BSESN)',
+  nse: 'Yahoo Finance (^NSEI)',
+  mid: 'Yahoo Finance (^NSEMDCP50)',
+  small: 'Yahoo Finance (^CNXSC)',
+  fii_dii: 'Moneycontrol (FII/DII Net Flows)',
+  gsec: 'TradingEconomics (India 10Y G-Sec)',
+  pe: 'Screener.in (Nifty PE Ratio)',
+  vix: 'Yahoo Finance (^INDIAVIX)',
+  us10y: 'Yahoo Finance (^TNX)',
+  dxy: 'Yahoo Finance (DX-Y.NYB)',
+  news: 'Moneycontrol News',
+};
+
 function renderCoverage(cov) {
   const grid = $('#coverage-grid');
   grid.innerHTML = '';
@@ -1761,9 +2655,22 @@ function renderCoverage(cov) {
     total++;
     const pass = !!cov[key];
     if (pass) ok++;
+    const source = COV_SOURCES[key] || 'Scraped source';
     const chip = document.createElement('div');
     chip.className = `cov-chip ${pass ? 'ok' : 'fail'}`;
-    chip.innerHTML = `<span class="cov-dot"></span><span class="cov-label">${label}</span>`;
+    chip.innerHTML = `
+      <div style="display:flex; align-items:center; gap:6px; overflow:hidden; flex:1;">
+        <span class="cov-dot"></span>
+        <span class="cov-label">${label}</span>
+      </div>
+      <span class="cov-info-icon" data-tooltip="Source: ${source}">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </span>
+    `;
     grid.appendChild(chip);
   }
   $('#cov-badge').textContent = `${ok} / ${total}`;
@@ -1771,6 +2678,40 @@ function renderCoverage(cov) {
   $('#stat-coverage').style.color = ok === total ? 'var(--up)' : ok > 0 ? 'var(--accent)' : 'var(--down)';
   $('#stat-coverage-sub').textContent = `${ok} of ${total} sources available`;
 }
+
+/* ── Fixed-position tooltip for coverage info icons ── */
+(function setupCovTooltip() {
+  // Create a singleton tooltip element appended directly to body
+  const tip = document.createElement('div');
+  tip.id = 'cov-tooltip';
+  document.body.appendChild(tip);
+
+  let hideTimer = null;
+
+  document.addEventListener('mouseover', (e) => {
+    const icon = e.target.closest('.cov-info-icon');
+    if (!icon) return;
+    clearTimeout(hideTimer);
+    const text = icon.dataset.tooltip || '';
+    tip.textContent = text;
+
+    const rect = icon.getBoundingClientRect();
+    // Position above the icon, aligned to its right edge
+    const tipLeft = Math.min(rect.right - tip.offsetWidth, window.innerWidth - tip.offsetWidth - 8);
+    const tipTop = rect.top - tip.offsetHeight - 6;
+    tip.style.left = `${Math.max(8, tipLeft)}px`;
+    tip.style.top = `${Math.max(8, tipTop)}px`;
+    tip.classList.add('visible');
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    const icon = e.target.closest('.cov-info-icon');
+    if (!icon) return;
+    hideTimer = setTimeout(() => tip.classList.remove('visible'), 80);
+  });
+})();
+
+
 
 let currentContentHeight = 1850;
 
@@ -1845,29 +2786,54 @@ function getPreviewZoom() {
 }
 
 function applyPreviewZoom(pct) {
-  const factor = pct / 100;
-  // Measure the real usable space instead of guessing from window.innerWidth:
-  // the dashboard page, preview container border, and viewport padding all
-  // eat into it by different amounts across breakpoints. clientWidth already
-  // nets out everything except .preview-viewport's own 16px/side padding.
+  const isMobile = window.innerWidth <= 768;
   const vp = $('.preview-viewport');
-  const available = vp ? vp.clientWidth - 32 : window.innerWidth - 32;
-  const effectiveFactor = Math.min(factor, available / PREVIEW_BASE_W);
+
   $$('.preview-frame').forEach(frame => {
-    frame.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
-    frame.style.height = `${currentContentHeight * PREVIEW_BASE_SCALE * effectiveFactor}px`;
     const iframe = frame.querySelector('iframe');
-    if (iframe) {
-      iframe.style.height = `${currentContentHeight}px`;
-      iframe.style.transform = `scale(${PREVIEW_BASE_SCALE * effectiveFactor})`;
+    if (isMobile) {
+      const availableW = vp && vp.clientWidth > 0 ? Math.min(vp.clientWidth, window.innerWidth - 24) : (window.innerWidth - 24);
+      const scaleFactor = availableW / 1024;
+      frame.style.width = `${availableW}px`;
+      frame.style.height = `${currentContentHeight * scaleFactor}px`;
+      if (iframe) {
+        iframe.style.width = '1024px';
+        iframe.style.height = `${currentContentHeight}px`;
+        iframe.style.transform = `scale(${scaleFactor})`;
+        iframe.style.transformOrigin = 'top left';
+      }
+    } else {
+      const factor = pct / 100;
+      const available = vp ? vp.clientWidth - 32 : window.innerWidth - 32;
+      const effectiveFactor = Math.min(factor, available / PREVIEW_BASE_W);
+      frame.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
+      frame.style.height = `${currentContentHeight * PREVIEW_BASE_SCALE * effectiveFactor}px`;
+      if (iframe) {
+        iframe.style.width = '1024px';
+        iframe.style.height = `${currentContentHeight}px`;
+        iframe.style.transform = `scale(${PREVIEW_BASE_SCALE * effectiveFactor})`;
+        iframe.style.transformOrigin = 'top left';
+      }
     }
   });
+
   $$('.card-panel-head').forEach(head => {
-    head.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
+    if (isMobile) {
+      head.style.width = '100%';
+    } else {
+      const factor = pct / 100;
+      const available = vp ? vp.clientWidth - 32 : window.innerWidth - 32;
+      const effectiveFactor = Math.min(factor, available / PREVIEW_BASE_W);
+      head.style.width = `${PREVIEW_BASE_W * effectiveFactor}px`;
+    }
   });
+
   const label = $('#preview-zoom-label');
   if (label) label.textContent = `${pct}%`;
 }
+
+// Global resize listener for preview scale adjustments
+window.addEventListener('resize', () => applyPreviewZoom(getPreviewZoom()));
 
 const previewZoomSlider = $('#preview-zoom-slider');
 if (previewZoomSlider) {
@@ -1879,7 +2845,6 @@ if (previewZoomSlider) {
     applyPreviewZoom(pct);
     localStorage.setItem(PREVIEW_ZOOM_KEY, String(pct));
   });
-  window.addEventListener('resize', () => applyPreviewZoom(getPreviewZoom()));
 }
 
 async function shareCard(type) {
@@ -1901,55 +2866,57 @@ async function shareCard(type) {
     }
   } catch (err) {
     log(`Native share failed: ${err.message}. Copying to clipboard and opening link...`, 'warn');
-    try {
-      const response = await fetch(`card/${type}.png?_t=${Date.now()}`);
-      const blob = await response.blob();
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          [blob.type]: blob
-        })
-      ]);
-      toast('Card copied to clipboard! Paste it into WhatsApp.', 'success');
-    } catch (clipErr) {
-      toast('Failed to copy card image. Please download and send manually.', 'error');
-    }
-    const shareUrl = `https://api.whatsapp.com/send?text=Check out today's SAMC Micro Digest:`;
-    window.open(shareUrl, '_blank');
+    copyCard(type);
   }
 }
 
 async function copyCard(type) {
   const label = type.charAt(0).toUpperCase() + type.slice(1);
   const url = `card/${type}.png?_t=${Date.now()}`;
-  // Image clipboard write requires a secure context (localhost or HTTPS) + ClipboardItem,
-  // and (inside the portal) the iframe must allow="clipboard-write".
   const canClipboard = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
 
-  if (canClipboard) {
-    try {
-      // Promise form keeps the user-gesture valid while the PNG renders server-side.
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': fetch(url).then(r => { if (!r.ok) throw new Error('Card not ready'); return r.blob(); }) })
-      ]);
-      toast(`${label} card copied to clipboard!`, 'success');
-      log(`Copied ${type} card to clipboard.`, 'ok');
-      return;
-    } catch (err) {
-      // Some engines reject the promise form — retry with a resolved blob.
-      try {
-        const blob = await (await fetch(url)).blob();
-        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-        toast(`${label} card copied to clipboard!`, 'success');
-        return;
-      } catch (e2) {
-        log(`Clipboard unavailable (${e2.message}); falling back to download.`, 'warn');
-      }
-    }
-  } else {
-    log('Clipboard API unavailable (not a secure context?); downloading instead.', 'warn');
+  if (!canClipboard) {
+    log('Clipboard API unavailable; downloading instead.', 'warn');
+    fallbackDownload(type, url);
+    return;
   }
 
-  // Fallback: download the PNG so the user still gets the image.
+  toast('Copying card to clipboard...', 'info');
+  try {
+    // Try copying resolved blob directly first (highly responsive if cached)
+    const blob = await fetch(url).then(r => {
+      if (!r.ok) throw new Error('Response error');
+      return r.blob();
+    });
+    
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob })
+    ]);
+    toast(`${label} card copied to clipboard!`, 'success');
+    log(`Copied ${type} card to clipboard.`, 'ok');
+  } catch (err) {
+    log(`Clipboard direct write failed: ${err.message}. Retrying with promise form...`, 'warn');
+    try {
+      // Fallback: try promise-based ClipboardItem (keeps user gesture active)
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'image/png': fetch(url).then(r => {
+            if (!r.ok) throw new Error('Card not ready');
+            return r.blob();
+          })
+        })
+      ]);
+      toast(`${label} card copied to clipboard!`, 'success');
+      log(`Copied ${type} card to clipboard (promise form).`, 'ok');
+    } catch (err2) {
+      log(`Clipboard write failed (${err2.message}); downloading instead.`, 'error');
+      fallbackDownload(type, url);
+    }
+  }
+}
+
+async function fallbackDownload(type, url) {
+  const label = type.charAt(0).toUpperCase() + type.slice(1);
   try {
     const resp = await fetch(url);
     if (!resp.ok) throw new Error('Card not generated yet');
@@ -1961,8 +2928,7 @@ async function copyCard(type) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     toast(`Copy isn’t available here — downloaded the ${label} card instead.`, 'success');
   } catch (e3) {
-    toast('Could not copy or download — generate the cards first.', 'error');
-    log(`Copy/download failed: ${e3.message}`, 'err');
+    toast('Failed to copy card image. Please download and send manually.', 'error');
   }
 }
 
@@ -2043,7 +3009,7 @@ async function loadConfig() {
     setColor('bg', bc.bg_color || '#FCF9F2');
     setColor('yellow', bc.yellow_brand || '#F7B500');
     setColor('text', bc.text_color || '#1A1A1A');
-    $('#cfg-active-company').value = cfg.active_company || 'wealth';
+    $('#cfg-active-company').value = cfg.active_company || 'amc';
     $('#cfg-watermark').value = cfg.watermark_mode || 'both';
     $('#cfg-disclaimer').value = cfg.disclaimer_text || '';
     $('#cfg-webhook').value = cfg.webhook_url || '';
@@ -2153,7 +3119,7 @@ $('#btn-config-reset').addEventListener('click', async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        active_company: 'wealth',
+        active_company: 'amc',
         webhook_url: '',
         disclaimer_text: 'Mutual Fund investments are subject to market risks, read all scheme related documents carefully.',
         watermark_mode: 'both',
@@ -2900,7 +3866,8 @@ function getUniqueSelector(el) {
     
     let selector = tag;
     if (el.classList.length > 0) {
-      const classes = Array.from(el.classList).filter(c => !c.startsWith('samc-') && c !== 'ui-draggable' && c !== 'ui-resizable');
+      const ignoredClasses = new Set(['up', 'down', 'flat', 'pos', 'neg', 'active', 'selected', 'ui-draggable', 'ui-resizable']);
+      const classes = Array.from(el.classList).filter(c => !c.startsWith('samc-') && !ignoredClasses.has(c));
       if (classes.length > 0) {
         selector += '.' + classes.join('.');
       }
@@ -4161,9 +5128,9 @@ function getLayoutOverrides() {
     }
   });
   
-  // Save DOM sibling orders for parents that have multiple children
+  // Save DOM sibling orders only for parents where elements were explicitly reordered
   const domOrders = {};
-  iframeDoc.querySelectorAll('body *').forEach(parent => {
+  iframeDoc.querySelectorAll('body *[data-samc-reordered="true"]').forEach(parent => {
     if (parent.children.length > 1) {
       if (parent.id === 'samc-editor-toolbar' || parent.closest('#samc-editor-toolbar')) return;
       if (parent.id === 'samc-selection-overlay') return;
@@ -4182,7 +5149,9 @@ function getLayoutOverrides() {
       }
     }
   });
-  overrides['__dom_orders__'] = domOrders;
+  if (Object.keys(domOrders).length > 0) {
+    overrides['__dom_orders__'] = domOrders;
+  }
   
   return overrides;
 }
@@ -4237,6 +5206,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (toolbarStrip) toolbarStrip.style.display = 'flex';
       if (saveRow) saveRow.style.display = 'flex';
       propSection.style.display = 'flex';
+      const resizer2 = $('#panel-resizer-2');
+      if (resizer2) resizer2.style.display = 'flex';
       updateUndoRedoButtons();
       log('Visual edit mode enabled. Ctrl+Z to undo, Ctrl+Shift+Z to redo. Hold Shift for multi-select.', 'warn');
       toast('Visual edit mode enabled!', 'info');
@@ -4247,6 +5218,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (toolbarStrip) toolbarStrip.style.display = 'none';
       if (saveRow) saveRow.style.display = 'none';
       propSection.style.display = 'none';
+      const resizer2 = $('#panel-resizer-2');
+      if (resizer2) resizer2.style.display = 'none';
       deselect();
       log('Visual edit mode disabled.', 'info');
       toast('Visual edit mode disabled.', 'info');
@@ -4474,6 +5447,8 @@ async function deleteVersion(versionId, versionName) {
   log('Dashboard initializing…');
   await loadStatus();
   log('Status loaded.', 'ok');
+  await loadConfig();
+  log('Config loaded.', 'ok');
   if (lastStatus && lastStatus.has_report) {
     renderPreview('daily');
     log('Preview loaded from last generation.', 'ok');
@@ -4494,8 +5469,13 @@ $('#btn-hamburger').addEventListener('click', () => {
   document.body.classList.toggle('sidebar-open');
 });
 // Manage active state class on the gear settings icon button
-$('#btn-settings-gear').addEventListener('click', () => {
-  $('#btn-settings-gear').classList.add('active');
+$('#btn-settings-gear').addEventListener('click', (e) => {
+  e.preventDefault();
+  const accordion = document.getElementById('settings-accordion');
+  if (accordion) {
+    accordion.open = true;
+    accordion.scrollIntoView({ behavior: 'smooth' });
+  }
 });
 $$('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -4577,7 +5557,488 @@ $$('.tab-btn').forEach(btn => {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
+
+  // Stacked Panel Height Resizer logic
+  function setupPanelHeightResizer(resizerId, upperSectionId, minHeight, maxHeight, storageKey) {
+    const resizer = document.getElementById(resizerId);
+    const upperSection = document.getElementById(upperSectionId);
+    if (!resizer || !upperSection) return;
+
+    // Restore saved height
+    const savedHeight = localStorage.getItem(storageKey);
+    if (savedHeight) {
+      upperSection.style.height = savedHeight + 'px';
+      upperSection.style.flex = 'none';
+    }
+
+    resizer.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      const startY = e.clientY;
+      const startHeight = upperSection.getBoundingClientRect().height;
+
+      resizer.classList.add('active');
+      document.body.classList.add('resizing-panel');
+
+      function onMouseMove(moveEvent) {
+        let newHeight = startHeight + (moveEvent.clientY - startY);
+        newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+        upperSection.style.height = newHeight + 'px';
+        upperSection.style.flex = 'none'; // Lock to fixed height during resizing
+      }
+
+      function onMouseUp() {
+        resizer.classList.remove('active');
+        document.body.classList.remove('resizing-panel');
+        localStorage.setItem(storageKey, upperSection.getBoundingClientRect().height);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  }
+
+  setupPanelHeightResizer('panel-resizer-1', 'sidebar-layers-section', 120, 600, 'samc_panel_height_layers');
+  setupPanelHeightResizer('panel-resizer-2', 'sidebar-properties-section', 150, 700, 'samc_panel_height_properties');
 })();
+
+/* ══════════════════════════════════════════
+   mweb — Mobile Bottom Sheet & UI Logic
+   Only active on viewports ≤ 768px
+   ══════════════════════════════════════════ */
+(function initMweb() {
+
+  const MOBILE_BP = 768;
+  const isMobile = () => window.innerWidth <= MOBILE_BP;
+
+  // ── Element refs ──
+  const bottomNav     = document.getElementById('mweb-bottom-nav');
+  const statusStrip   = document.getElementById('mweb-status-strip');
+  const actionRow     = document.getElementById('mweb-action-row');
+  const overlay       = document.getElementById('mweb-sheet-overlay');
+  const sheets        = document.querySelectorAll('.mweb-sheet');
+  const tabBtns       = document.querySelectorAll('.mweb-tab-btn');
+
+  // ── Show/hide mobile elements ──
+  function applyMobileLayout() {
+    const mobile = isMobile();
+    if (bottomNav)   bottomNav.style.display   = mobile ? 'flex'  : 'none';
+    if (statusStrip) statusStrip.style.display  = mobile ? 'flex'  : 'none';
+    if (actionRow)   actionRow.style.display    = mobile ? 'flex'  : 'none';
+    sheets.forEach(s => {
+      if (!mobile) s.style.display = 'none';
+      else s.style.display = '';
+    });
+  }
+  applyMobileLayout();
+  window.addEventListener('resize', applyMobileLayout);
+
+  // ── Bottom Sheet: open / close ──
+  let activeSheet = null;
+
+  function openSheet(sheetId) {
+    closeAllSheets();
+    const sheet = document.getElementById(`mweb-sheet-${sheetId}`);
+    if (!sheet) return;
+    sheet.classList.add('open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    activeSheet = sheetId;
+
+    // Sync coverage grid into sheet when opened
+    if (sheetId === 'coverage') syncMwebCoverage();
+
+    // Update active tab
+    tabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.sheet === sheetId);
+    });
+  }
+
+  function closeAllSheets() {
+    sheets.forEach(s => s.classList.remove('open'));
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    activeSheet = null;
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+  }
+
+  // ── Tab bar click ──
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sheet = btn.dataset.sheet;
+      if (sheet === 'settings') {
+        // Settings: toggle the left sidebar drawer (existing logic)
+        closeAllSheets();
+        document.body.classList.toggle('sidebar-open');
+        return;
+      }
+      if (activeSheet === sheet) {
+        closeAllSheets();
+      } else {
+        openSheet(sheet);
+      }
+    });
+  });
+
+  // Overlay tap closes sheet
+  if (overlay) overlay.addEventListener('click', closeAllSheets);
+
+  // Sheet close buttons
+  document.querySelectorAll('.mweb-sheet-close').forEach(btn => {
+    btn.addEventListener('click', closeAllSheets);
+  });
+
+  // ── Drag-to-dismiss gesture ──
+  sheets.forEach(sheet => {
+    let startY = 0, isDragging = false;
+    const handle = sheet.querySelector('.mweb-sheet-handle');
+    if (!handle) return;
+
+    handle.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      sheet.style.transition = 'none';
+    }, { passive: true });
+
+    handle.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+
+    handle.addEventListener('touchend', e => {
+      isDragging = false;
+      sheet.style.transition = '';
+      const dy = e.changedTouches[0].clientY - startY;
+      if (dy > 80) {
+        closeAllSheets();
+      } else {
+        sheet.style.transform = ''; // snap back
+      }
+    });
+  });
+
+  // ── Mobile Generate button → delegate to main button ──
+  const mwebGenBtn = document.getElementById('btn-mweb-generate');
+  if (mwebGenBtn) {
+    mwebGenBtn.addEventListener('click', () => {
+      const mainBtn = document.getElementById('btn-generate');
+      if (mainBtn) mainBtn.click();
+    });
+  }
+
+  // ── Mobile action row → delegate to existing card panel buttons ──
+  const mwebCopy = document.getElementById('mweb-btn-copy');
+  if (mwebCopy) mwebCopy.addEventListener('click', () => {
+    // Find copy button in card panel
+    const btn = document.querySelector('.card-panel-actions [onclick*="copyCard"], .card-panel-actions .btn-icon[title*="Copy"]');
+    if (btn) btn.click();
+    else if (typeof copyCard === 'function') copyCard('daily');
+  });
+
+  const mwebDownload = document.getElementById('mweb-btn-download');
+  if (mwebDownload) mwebDownload.addEventListener('click', () => {
+    const btn = document.querySelector('.card-panel-actions [onclick*="downloadCard"]');
+    if (btn) btn.click();
+    else if (typeof downloadCard === 'function') downloadCard('daily');
+  });
+
+  const mwebShare = document.getElementById('mweb-btn-share');
+  if (mwebShare) mwebShare.addEventListener('click', () => {
+    const btn = document.querySelector('.card-panel-actions [onclick*="shareCard"]');
+    if (btn) btn.click();
+    else if (typeof shareCard === 'function') shareCard('daily');
+  });
+
+  // ── Sync status strip & status sheet from desktop data ──
+  function syncMwebStatus(s) {
+    if (!isMobile()) return;
+    try {
+      // Header dot
+      const headerDot = document.getElementById('mweb-header-dot');
+      const stripDot  = document.getElementById('mweb-strip-dot');
+      const desktopDot = document.getElementById('status-dot');
+      if (desktopDot && headerDot) headerDot.className = desktopDot.className;
+      if (desktopDot && stripDot)  stripDot.className  = desktopDot.className;
+
+      // Strip status text
+      const stripStatus = document.getElementById('mweb-strip-status');
+      const desktopStatusText = document.getElementById('status-text');
+      if (stripStatus && desktopStatusText) stripStatus.textContent = desktopStatusText.textContent;
+
+      // Strip time
+      const stripTime = document.getElementById('mweb-strip-time');
+      const statTime  = document.getElementById('stat-time');
+      if (stripTime && statTime) stripTime.textContent = statTime.textContent !== '—' ? statTime.textContent : '—';
+
+      // Strip coverage count
+      const stripCov = document.getElementById('mweb-strip-coverage');
+      const covBadge = document.getElementById('cov-badge');
+      if (stripCov && covBadge) stripCov.textContent = covBadge.textContent;
+      const mwebCovBadge = document.getElementById('mweb-cov-badge');
+      if (mwebCovBadge && covBadge) mwebCovBadge.textContent = covBadge.textContent;
+
+      // Sheet stat cards — mirror desktop values
+      [['mweb-stat-status', 'stat-status'], ['mweb-stat-status-sub', 'stat-status-sub'],
+       ['mweb-stat-time',   'stat-time'],   ['mweb-stat-time-sub',   'stat-time-sub'],
+       ['mweb-stat-chrome', 'stat-chrome'], ['mweb-stat-chrome-sub', 'stat-chrome-sub'],
+       ['mweb-stat-coverage','stat-coverage'],['mweb-stat-coverage-sub','stat-coverage-sub']
+      ].forEach(([mwebId, desktopId]) => {
+        const mwebEl    = document.getElementById(mwebId);
+        const desktopEl = document.getElementById(desktopId);
+        if (mwebEl && desktopEl) {
+          mwebEl.textContent = desktopEl.textContent;
+          mwebEl.style.color = desktopEl.style.color || '';
+        }
+      });
+
+      // Mirror log lines to mobile log box
+      const mwebLog    = document.getElementById('mweb-log-box');
+      const desktopLog = document.getElementById('log-box');
+      if (mwebLog && desktopLog) mwebLog.innerHTML = desktopLog.innerHTML;
+
+    } catch (err) {
+      console.warn('[mweb] syncMwebStatus error:', err);
+    }
+  }
+
+  // ── Sync coverage chips into mobile sheet ──
+  function syncMwebCoverage() {
+    const mwebGrid    = document.getElementById('mweb-coverage-grid');
+    const desktopGrid = document.getElementById('coverage-grid');
+    if (mwebGrid && desktopGrid) mwebGrid.innerHTML = desktopGrid.innerHTML;
+  }
+
+  // Hook into the global loadStatus function by wrapping it
+  const _origLoadStatus = window.loadStatus;
+  if (typeof _origLoadStatus === 'function') {
+    window.loadStatus = async function(...args) {
+      const result = await _origLoadStatus.apply(this, args);
+      // After desktop status is rendered, sync mobile
+      setTimeout(() => syncMwebStatus(), 100);
+      return result;
+    };
+  } else {
+    // Fallback: poll every 5s
+    setInterval(() => syncMwebStatus(), 5000);
+  }
+
+  // Initial sync after a short delay
+  setTimeout(() => syncMwebStatus(), 500);
+
+})();
+</script>
+
+<!-- Data Sources & Methodology Modal -->
+<div class="samc-modal-overlay" id="modal-data-sources" style="display:none;">
+  <div class="samc-modal" style="max-width: 680px;">
+    <div class="samc-modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="background: rgba(247,181,0,0.12); color: var(--accent); padding:8px; border-radius:8px; display:flex;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700; font-size:16px; color:var(--text);">Data Sources & Methodology</div>
+          <div style="font-size:12px; color:var(--text-2);">Verified market data providers for SAMC Micro Digest</div>
+        </div>
+      </div>
+      <button class="samc-modal-close" onclick="closeDataSourcesModal()">×</button>
+    </div>
+    <div class="samc-modal-body" style="padding: 18px 20px; max-height: 70vh; overflow-y: auto;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="background: var(--surface-2); border:1px solid var(--glass-border); border-radius:10px; padding:12px;">
+          <div style="font-weight:700; font-size:13px; color:var(--accent); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            Equity Market Indices
+          </div>
+          <div style="font-size:12px; color:var(--text); font-weight:600;">Sensex, Nifty 50, BSE Midcap, BSE Smallcap</div>
+          <div style="font-size:11px; color:var(--text-2); margin-top:4px;">Primary Provider: <strong>Yahoo Finance</strong> realtime market feeds.</div>
+        </div>
+        <div style="background: var(--surface-2); border:1px solid var(--glass-border); border-radius:10px; padding:12px;">
+          <div style="font-weight:700; font-size:13px; color:var(--accent); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Market Mood Index (MMI)
+          </div>
+          <div style="font-size:12px; color:var(--text); font-weight:600;">Gauge Rating &amp; Sentiment Score</div>
+          <div style="font-size:11px; color:var(--text-2); margin-top:4px;">Primary Provider: <strong>Tickertape MMI API</strong> (Market Mood Algorithm).</div>
+        </div>
+        <div style="background: var(--surface-2); border:1px solid var(--glass-border); border-radius:10px; padding:12px;">
+          <div style="font-weight:700; font-size:13px; color:var(--accent); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg>
+            Institutional Investment Flows
+          </div>
+          <div style="font-size:12px; color:var(--text); font-weight:600;">FII / FPI Net &amp; DII Net Trading Flows</div>
+          <div style="font-size:11px; color:var(--text-2); margin-top:4px;">Primary Provider: <strong>Moneycontrol</strong> daily settlement feeds.</div>
+        </div>
+        <div style="background: var(--surface-2); border:1px solid var(--glass-border); border-radius:10px; padding:12px;">
+          <div style="font-weight:700; font-size:13px; color:var(--accent); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            Commodities &amp; FX Rates
+          </div>
+          <div style="font-size:12px; color:var(--text); font-weight:600;">Brent Crude, Gold, Silver, USD/INR, VIX</div>
+          <div style="font-size:11px; color:var(--text-2); margin-top:4px;">Primary Provider: <strong>Yahoo Finance</strong> market feeds.</div>
+        </div>
+        <div style="background: var(--surface-2); border:1px solid var(--glass-border); border-radius:10px; padding:12px; grid-column: span 2;">
+          <div style="font-weight:700; font-size:13px; color:var(--accent); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Fixed Income Yields &amp; Valuations
+          </div>
+          <div style="font-size:12px; color:var(--text); font-weight:600;">10Y Benchmark G-Sec Yield &amp; Nifty PE Ratios</div>
+          <div style="font-size:11px; color:var(--text-2); margin-top:4px;">Primary Provider: <strong>TradingEconomics</strong> (G-Sec) &amp; <strong>Screener.in</strong> (Nifty PE).</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; padding:10px 14px; background:rgba(247,181,0,0.08); border:1px solid rgba(247,181,0,0.2); border-radius:8px; font-size:11px; color:var(--text-2);">
+        <strong>Disclaimer:</strong> Sourced data is retrieved live and processed automatically. Market values are delayed according to exchange policies.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Previous Days Image Archive Modal -->
+<div class="samc-modal-overlay" id="modal-previous-days" style="display:none;">
+  <div class="samc-modal" style="max-width: 900px; width: 92vw;">
+    <div class="samc-modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="background: rgba(52,199,89,0.12); color: var(--up); padding:8px; border-radius:8px; display:flex;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700; font-size:16px; color:var(--text);">Previous Days Image Archive</div>
+          <div style="font-size:12px; color:var(--text-2);">Browse, preview high-resolution images, and restore previously generated cards</div>
+        </div>
+      </div>
+      <button class="samc-modal-close" onclick="closePreviousDaysModal()">×</button>
+    </div>
+    <div class="samc-modal-body" style="padding: 18px 20px; max-height: 75vh; overflow-y: auto;">
+      <div id="previous-days-loading" style="text-align:center; padding: 40px; color:var(--text-2);">
+        <span class="spinner"></span> Loading historical archive...
+      </div>
+      <div id="previous-days-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- High-Res Image Lightbox -->
+<div class="samc-modal-overlay" id="modal-image-lightbox" style="display:none; z-index:100000;" onclick="closeLightbox()">
+  <div style="position:relative; max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()">
+    <button onclick="closeLightbox()" style="position:absolute; top:-40px; right:0; background:transparent; border:none; color:#fff; font-size:32px; cursor:pointer; font-weight:bold;">×</button>
+    <img id="lightbox-img" src="" alt="High resolution preview" style="max-width:100%; max-height:82vh; border-radius:12px; box-shadow: 0 12px 50px rgba(0,0,0,0.6); object-fit:contain; background:#fff;">
+    <div id="lightbox-caption" style="color:#fff; margin-top:14px; font-weight:600; font-size:14px; font-family:var(--font); text-shadow:0 2px 4px rgba(0,0,0,0.5);"></div>
+  </div>
+</div>
+
+<script>
+function openDataSourcesModal() {
+  const el = document.getElementById('modal-data-sources');
+  if (el) el.style.display = 'flex';
+}
+function closeDataSourcesModal() {
+  const el = document.getElementById('modal-data-sources');
+  if (el) el.style.display = 'none';
+}
+
+function openPreviousDaysModal() {
+  const el = document.getElementById('modal-previous-days');
+  if (el) {
+    el.style.display = 'flex';
+    loadPreviousDaysArchive();
+  }
+}
+function closePreviousDaysModal() {
+  const el = document.getElementById('modal-previous-days');
+  if (el) el.style.display = 'none';
+}
+
+async function loadPreviousDaysArchive() {
+  const grid = document.getElementById('previous-days-grid');
+  const loading = document.getElementById('previous-days-loading');
+  if (!grid || !loading) return;
+  
+  loading.style.display = 'block';
+  grid.innerHTML = '';
+  
+  try {
+    const res = await fetch('/tools/samc-micro-digest/api/versions');
+    const data = await res.json();
+    loading.style.display = 'none';
+    
+    if (!data.versions || data.versions.length === 0) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-2);">No previous days generated yet. Generate cards to start building your historical archive!</div>';
+      return;
+    }
+    
+    data.versions.forEach(ver => {
+      const card = document.createElement('div');
+      card.className = 'archive-card';
+      const imgUrl = `/tools/samc-micro-digest/api/version/${ver.id}/image`;
+      const dateStr = ver.created_at ? new Date(ver.created_at).toLocaleString() : ver.id;
+      
+      card.innerHTML = `
+        <div class="archive-thumb-wrap" onclick="previewImageInLightbox('${imgUrl}', '${ver.name || 'Daily Card'} - ${dateStr}')">
+          <img src="${imgUrl}" alt="${ver.name || 'Daily Card'}" onerror="this.src='/logo.jpeg'; this.style.objectFit='contain';">
+        </div>
+        <div class="archive-card-body">
+          <div class="archive-title">${ver.name || 'Daily Card'}</div>
+          <div class="archive-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${dateStr}
+          </div>
+          <div class="archive-actions">
+            <button class="btn-archive-act" onclick="previewImageInLightbox('${imgUrl}', '${ver.name || 'Daily Card'} - ${dateStr}')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              View
+            </button>
+            <a class="btn-archive-act" href="${imgUrl}" download="card_${ver.id}.png">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </a>
+            <button class="btn-archive-act primary" onclick="restoreVersionFromArchive('${ver.id}')">
+              Restore
+            </button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    loading.style.display = 'none';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--down); padding:20px;">Failed to load historical archives. Please try again.</div>';
+  }
+}
+
+function previewImageInLightbox(url, title) {
+  const lightbox = document.getElementById('modal-image-lightbox');
+  const img = document.getElementById('lightbox-img');
+  const caption = document.getElementById('lightbox-caption');
+  if (lightbox && img && caption) {
+    img.src = url;
+    caption.innerText = title || '';
+    lightbox.style.display = 'flex';
+  }
+}
+
+function closeLightbox() {
+  const lightbox = document.getElementById('modal-image-lightbox');
+  if (lightbox) lightbox.style.display = 'none';
+}
+
+async function restoreVersionFromArchive(versionId) {
+  if (!confirm('Restore this layout and card version as the current active version?')) return;
+  try {
+    const res = await fetch(`/tools/samc-micro-digest/api/version/restore/${versionId}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      toast('Version restored successfully!', 'info');
+      closePreviousDaysModal();
+      setTimeout(() => location.reload(), 600);
+    } else {
+      toast('Could not restore version: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    toast('Error restoring version.', 'error');
+  }
+}
 </script>
 </body>
 </html>

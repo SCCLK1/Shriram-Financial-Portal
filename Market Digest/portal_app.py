@@ -87,7 +87,7 @@ SAMC_VERSIONS_DIR = SAMC_OUTPUT / "versions"
 SAMC_VERSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
 SAMC_DEFAULT_CONFIG = {
-    "active_company": "wealth",
+    "active_company": "amc",
     "webhook_url": "",
     "disclaimer_text": "Mutual Fund investments are subject to market risks, read all scheme related documents carefully.",
     "watermark_mode": "both",
@@ -116,6 +116,11 @@ SAMC_DEFAULT_CONFIG = {
         "usdinr_value": "",
         "gsec_value": "",
         "pe_value": "",
+        "vix_value": "",
+        "us10y_value": "",
+        "dxy_value": "",
+        "midcap_pe_value": "",
+        "smallcap_pe_value": "",
         "headlines": [],
     },
 }
@@ -233,7 +238,7 @@ def _samc_apply_overrides(data: dict, cfg: dict) -> dict:
         v = _float(f"{k}_value")
         if v is not None:
             mc[k] = v
-    for k in ("brent", "gold", "silver", "usdinr"):
+    for k in ("brent", "gold", "silver", "usdinr", "vix", "us10y", "dxy"):
         v = _float(f"{k}_value")
         if v is not None:
             q[k]["value"] = v
@@ -243,6 +248,12 @@ def _samc_apply_overrides(data: dict, cfg: dict) -> dict:
     pe_v = _float("pe_value")
     if pe_v is not None:
         mc["pe"] = {"available": True, "value": pe_v}
+    midcap_pe_v = _float("midcap_pe_value")
+    if midcap_pe_v is not None:
+        mc["midcap_pe"] = {"available": True, "value": midcap_pe_v}
+    smallcap_pe_v = _float("smallcap_pe_value")
+    if smallcap_pe_v is not None:
+        mc["smallcap_pe"] = {"available": True, "value": smallcap_pe_v}
     headlines = ov.get("headlines")
     if headlines:
         mc["headlines"] = headlines if isinstance(headlines, list) else [headlines]
@@ -270,6 +281,8 @@ def _samc_generate_html() -> dict:
                 img.unlink()
             except Exception:
                 pass
+    import threading
+    threading.Thread(target=lambda: _samc_render_png("daily"), daemon=True).start()
     meta = _samc_load_meta()
     return {
         "generated_at": meta["generated_at"] if meta else None,
@@ -337,12 +350,38 @@ def _samc_render_png(card_type: str) -> Path:
             shutil.copy2(png_file, desktop / f"card_{card_type}.png")
         except Exception:
             pass
+
+    # Auto-archive snapshot to SAMC_VERSIONS_DIR
+    try:
+        version_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+        ver_dir = SAMC_VERSIONS_DIR / version_id
+        ver_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(png_file, ver_dir / "card_daily.png")
+        shutil.copy2(html_file, ver_dir / "card_daily.html")
+        overrides_file = SAMC_OUTPUT / "layout_overrides.json"
+        if overrides_file.exists():
+            shutil.copy2(overrides_file, ver_dir / "layout_overrides.json")
+        meta = {
+            "id": version_id,
+            "name": f"Daily Card {datetime.now().strftime('%b %d, %Y %I:%M %p')}",
+            "created_at": datetime.now().isoformat(),
+            "user": "System (Auto-generated)",
+        }
+        (ver_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[SAMC] Version auto-archive exception: {e}")
+
     return png_file
 
 
 @samc_bp.route("/")
 def samc_index():
     return send_file(SAMC_STATIC / "index.html", mimetype="text/html")
+
+
+@samc_bp.route("/explainer")
+def samc_explainer():
+    return send_file(SAMC_STATIC / "architecture_explainer.html", mimetype="text/html")
 
 
 @samc_bp.route("/static/<path:filename>")
@@ -360,6 +399,8 @@ def samc_api_status():
         "has_daily": has_daily,
         "chrome_available": chrome_ok,
         "chrome_path": CHROME_PATH,
+        "user_role": session.get("role", "admin"),
+        "user_mobile": session.get("mobile", "9791117131"),
         **(meta or {}),
     })
 
@@ -434,6 +475,8 @@ def samc_api_save_card():
                     img.unlink()
                 except Exception:
                     pass
+        import threading
+        threading.Thread(target=lambda: _samc_render_png("daily"), daemon=True).start()
         
         mobile = session.get("mobile", "unknown")
         db_helper.add_log(mobile, "Saved custom layout for Daily card")
@@ -559,6 +602,24 @@ def samc_api_version_delete(version_id: str):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@samc_bp.route("/api/version/<version_id>/image")
+def samc_api_version_image(version_id: str):
+    ver_dir = SAMC_VERSIONS_DIR / version_id
+    png = ver_dir / "card_daily.png"
+    if not png.exists():
+        abort(404, "Image not found for this version.")
+    return send_file(png, mimetype="image/png")
+
+
+@samc_bp.route("/api/version/<version_id>/html")
+def samc_api_version_html(version_id: str):
+    ver_dir = SAMC_VERSIONS_DIR / version_id
+    html = ver_dir / "card_daily.html"
+    if not html.exists():
+        abort(404, "HTML not found for this version.")
+    return send_file(html, mimetype="text/html")
 
 
 @samc_bp.route("/api/publish", methods=["POST"])
@@ -997,7 +1058,7 @@ def md_card_news_png():
 
 # Register Blueprints on Master App
 app.register_blueprint(samc_bp, url_prefix="/tools/samc-micro-digest")
-app.register_blueprint(market_bp, url_prefix="/tools/market-digest-pdf")
+# app.register_blueprint(market_bp, url_prefix="/tools/market-digest-pdf")
 
 
 # ---------------------------------------------------------------------------
@@ -1337,7 +1398,7 @@ def admin_list_logs():
 
 @app.route("/")
 def index():
-    return render_template("portal_index.html")
+    return redirect("/tools/samc-micro-digest/")
 
 
 def get_company_logo(company_id: str) -> tuple[bytes, str] | None:
@@ -1361,7 +1422,7 @@ def logo():
     company_id = request.args.get("c")
     if not company_id or company_id not in ("wealth", "amc", "insights", "financial"):
         cfg = _samc_load_config()
-        company_id = cfg.get("active_company", "wealth")
+        company_id = cfg.get("active_company", "amc")
     logo_info = get_company_logo(company_id)
     if logo_info:
         content, mime = logo_info
@@ -1410,7 +1471,7 @@ def admin_upload_logo():
 
         # The cards only display the ACTIVE company's logo. Tell the UI whether the
         # uploaded company is the active one so it can warn if not.
-        active_company = _samc_load_config().get("active_company", "wealth")
+        active_company = _samc_load_config().get("active_company", "amc")
         return jsonify({
             "ok": True,
             "rerendered": rerendered,

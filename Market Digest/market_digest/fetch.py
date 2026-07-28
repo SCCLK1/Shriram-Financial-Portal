@@ -323,9 +323,9 @@ def fetch_news(limit: int = 10) -> dict[str, Any]:
         "https://www.moneycontrol.com/rss/marketreports.xml",
         "https://www.moneycontrol.com/rss/buzzingstocks.xml",
         "https://www.moneycontrol.com/rss/business.xml",
-        "https://www.livemint.com/rss/markets",
-        "https://www.livemint.com/rss/companies",
-        "https://www.livemint.com/rss/economy"
+        "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms",
+        "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms",
+        "https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms"
     ]
 
     def clean_text(text: str) -> str:

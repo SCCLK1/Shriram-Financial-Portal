@@ -587,6 +587,24 @@ def api_version_delete(version_id: str):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/version/<version_id>/image")
+def api_version_image(version_id: str):
+    ver_dir = VERSIONS_DIR / version_id
+    png = ver_dir / "card_daily.png"
+    if not png.exists():
+        abort(404, "Image not found for this version.")
+    return send_file(png, mimetype="image/png")
+
+
+@app.route("/api/version/<version_id>/html")
+def api_version_html(version_id: str):
+    ver_dir = VERSIONS_DIR / version_id
+    html = ver_dir / "card_daily.html"
+    if not html.exists():
+        abort(404, "HTML not found for this version.")
+    return send_file(html, mimetype="text/html")
+
+
 @app.route("/api/render-png/<card_type>", methods=["POST"])
 def api_render_png(card_type: str):
     if card_type != "daily":

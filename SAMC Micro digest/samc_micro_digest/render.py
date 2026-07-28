@@ -192,7 +192,7 @@ def render_report(data: dict[str, Any], output_dir: Path) -> None:
     
     # Dynamic per-company logo (matches the rest of the portal's branding switch).
     # Prefer a vector .svg export over the .jpeg raster when one exists.
-    company_id = config.get("active_company", "wealth")
+    company_id = config.get("active_company", "amc")
     logos_dir = Path(__file__).parent.parent / "logos"
     logo_src = logos_dir / f"{company_id}.svg"
     if not logo_src.exists():
@@ -258,6 +258,7 @@ def render_report(data: dict[str, Any], output_dir: Path) -> None:
     if overrides_file.exists():
         try:
             import json
+            import re
             overrides = json.loads(overrides_file.read_text(encoding="utf-8"))
             if overrides:
                 from bs4 import BeautifulSoup
@@ -268,6 +269,9 @@ def render_report(data: dict[str, Any], output_dir: Path) -> None:
                     if selector.startswith("__"):
                         continue
                     el = soup.select_one(selector)
+                    if not el:
+                        fallback_sel = re.sub(r'\.(up|down|flat|pos|neg)\b', '', selector)
+                        el = soup.select_one(fallback_sel)
                     if el:
                         el['style'] = style_str
                         
@@ -276,12 +280,26 @@ def render_report(data: dict[str, Any], output_dir: Path) -> None:
                 if dom_orders:
                     for parent_sel, child_sels in dom_orders.items():
                         parent_el = soup.select_one(parent_sel)
+                        if not parent_el:
+                            fallback_p = re.sub(r'\.(up|down|flat|pos|neg)\b', '', parent_sel)
+                            parent_el = soup.select_one(fallback_p)
                         if parent_el:
+                            existing_children = [c for c in parent_el.children if hasattr(c, 'name') and c.name]
                             resolved_children = []
+                            matched_ids = set()
                             for child_sel in child_sels:
                                 child_el = soup.select_one(child_sel)
-                                if child_el and child_el.parent == parent_el:
+                                if not child_el or child_el.parent != parent_el:
+                                    fallback_c = re.sub(r'\.(up|down|flat|pos|neg)\b', '', child_sel)
+                                    child_el = soup.select_one(fallback_c)
+                                if child_el and child_el.parent == parent_el and id(child_el) not in matched_ids:
                                     resolved_children.append(child_el)
+                                    matched_ids.add(id(child_el))
+                            # Append any remaining existing children of parent_el that were not matched
+                            for child_el in existing_children:
+                                if id(child_el) not in matched_ids:
+                                    resolved_children.append(child_el)
+                            # Re-append all resolved children in order
                             for child_el in resolved_children:
                                 parent_el.append(child_el)
                                 

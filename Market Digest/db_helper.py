@@ -128,7 +128,7 @@ def init_db():
                 pass
 
         default_config = {
-            "active_company": config_data.get("active_company", "wealth"),
+            "active_company": config_data.get("active_company", "amc"),
             "webhook_url": config_data.get("webhook_url", ""),
             "disclaimer_text": config_data.get("disclaimer_text", "Mutual Fund investments are subject to market risks, read all scheme related documents carefully."),
             "watermark_mode": config_data.get("watermark_mode", "both"),
@@ -143,7 +143,9 @@ def init_db():
                 "date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "",
                 "mid_value": "", "mid_change": "", "small_value": "", "small_change": "",
                 "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "",
-                "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "headlines": [],
+                "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "",
+                "vix_value": "", "us10y_value": "", "dxy_value": "", "midcap_pe_value": "", "smallcap_pe_value": "",
+                "headlines": [],
             })),
         }
         upsert = _upsert_config_sql()
@@ -188,13 +190,13 @@ def load_db_config() -> dict:
                 cfg[k] = v
 
         defaults = {
-            "active_company": "wealth",
+            "active_company": "amc",
             "webhook_url": "",
             "disclaimer_text": "Mutual Fund investments are subject to market risks, read all scheme related documents carefully.",
             "watermark_mode": "both",
             "brand_colors": {"bg_color": "#FCF9F2", "text_color": "#1A1A1A", "yellow_brand": "#F7B500", "gray_text": "#555555"},
             "manual_override": False,
-            "overrides": {"date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "", "mid_value": "", "mid_change": "", "small_value": "", "small_change": "", "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "", "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "headlines": []},
+            "overrides": {"date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "", "mid_value": "", "mid_change": "", "small_value": "", "small_change": "", "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "", "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "vix_value": "", "us10y_value": "", "dxy_value": "", "midcap_pe_value": "", "smallcap_pe_value": "", "headlines": []},
         }
         for k, val in defaults.items():
             if k not in cfg:

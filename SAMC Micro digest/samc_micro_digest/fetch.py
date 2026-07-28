@@ -304,6 +304,56 @@ def fetch_nifty_pe() -> dict[str, Any]:
     return {"available": False, "reason": "Fetch or validation failed"}
 
 
+def fetch_midcap_pe() -> dict[str, Any]:
+    """Fetch Nifty Midcap 100 P/E ratio from Screener.in."""
+    url = "https://www.screener.in/company/CNXMIDCAP/"
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=15, verify=False)
+        r.raise_for_status()
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(r.text, 'html.parser')
+        ratios = soup.find("ul", id="top-ratios")
+        if ratios:
+            for li in ratios.find_all("li"):
+                name = li.find(class_="name")
+                value = li.find(class_="number")
+                if name and value and "P/E" in name.get_text():
+                    val = float(value.get_text().replace(",", "").strip())
+                    valid_val = _validate("pe", val)
+                    if valid_val is not None:
+                        return {"available": True, "value": valid_val}
+                    break
+    except Exception as e:
+        print(f"  [fetch] Nifty Midcap PE fetch failed: {e}")
+        
+    return {"available": False, "reason": "Fetch or validation failed"}
+
+
+def fetch_smallcap_pe() -> dict[str, Any]:
+    """Fetch Nifty Smallcap 100 P/E ratio from Screener.in."""
+    url = "https://www.screener.in/company/CNXSMALLCA/"
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=15, verify=False)
+        r.raise_for_status()
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(r.text, 'html.parser')
+        ratios = soup.find("ul", id="top-ratios")
+        if ratios:
+            for li in ratios.find_all("li"):
+                name = li.find(class_="name")
+                value = li.find(class_="number")
+                if name and value and "P/E" in name.get_text():
+                    val = float(value.get_text().replace(",", "").strip())
+                    valid_val = _validate("pe", val)
+                    if valid_val is not None:
+                        return {"available": True, "value": valid_val}
+                    break
+    except Exception as e:
+        print(f"  [fetch] Nifty Smallcap PE fetch failed: {e}")
+        
+    return {"available": False, "reason": "Fetch or validation failed"}
+
+
 def fetch_news(limit: int = 5) -> list[str]:
     """Fetch corporate and market news headlines, scored for data-backed quantitative content."""
     import xml.etree.ElementTree as ET
@@ -314,9 +364,9 @@ def fetch_news(limit: int = 5) -> list[str]:
         "https://www.moneycontrol.com/rss/marketreports.xml",
         "https://www.moneycontrol.com/rss/buzzingstocks.xml",
         "https://www.moneycontrol.com/rss/business.xml",
-        "https://www.livemint.com/rss/markets",
-        "https://www.livemint.com/rss/companies",
-        "https://www.livemint.com/rss/economy"
+        "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms",
+        "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms",
+        "https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms"
     ]
 
     def clean_text(text: str) -> str:
@@ -492,6 +542,12 @@ def fetch_all() -> dict[str, Any]:
     print("  [fetch] Fetching Nifty PE ratio...")
     pe = fetch_nifty_pe()
 
+    print("  [fetch] Fetching Nifty Midcap PE ratio...")
+    midcap_pe = fetch_midcap_pe()
+
+    print("  [fetch] Fetching Nifty Smallcap PE ratio...")
+    smallcap_pe = fetch_smallcap_pe()
+
     print("  [fetch] Fetching news headlines...")
     headlines = fetch_news()
 
@@ -509,9 +565,8 @@ def fetch_all() -> dict[str, Any]:
             "dii": dii_val,
             "gsec": gsec,
             "pe": pe,
-            # No reliable free live source for these two — manual override or N/A.
-            "midcap_pe": {"available": False},
-            "smallcap_pe": {"available": False},
+            "midcap_pe": midcap_pe,
+            "smallcap_pe": smallcap_pe,
             "mood": compute_market_mood(quotes),
             "headlines": headlines
         }
