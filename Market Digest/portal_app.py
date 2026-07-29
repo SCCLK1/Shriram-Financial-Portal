@@ -1096,17 +1096,6 @@ TOOLS_METADATA = [
         "status": "online"
     },
     {
-        "id": "market-digest-pdf",
-        "name": "Shriram Market Digest (PDF)",
-        "description": "Comprehensive daily PDF market summaries and digests generated from live market sentiment and indicators, branded for Shriram.",
-        "url": "/tools/market-digest-pdf/",
-        "port": None,
-        "category": "REPORTS",
-        "icon": "document",
-        "tags": ["PDF", "A4 Report", "Headless Chrome"],
-        "status": "online"
-    },
-    {
         "id": "ai-creatives",
         "name": "AI Marketing Creatives Engine",
         "description": "Enterprise-grade generative AI platform to generate, manage, and govern brand-compliant marketing creatives.",
