@@ -1095,30 +1095,6 @@ TOOLS_METADATA = [
         "tags": ["WhatsApp", "Mobile", "yfinance"],
         "status": "online"
     },
-    {
-        "id": "ai-creatives",
-        "name": "AI Marketing Creatives Engine",
-        "description": "Enterprise-grade generative AI platform to generate, manage, and govern brand-compliant marketing creatives.",
-        "url": "#",
-        "port": None,
-        "category": "INFOGRAPHICS",
-        "icon": "document",
-        "tags": ["GenAI", "Branding", "Social Media"],
-        "status": "coming-soon",
-        "release": "Q3 2026"
-    },
-    {
-        "id": "portfolio-optimizer",
-        "name": "Portfolio Optimizer",
-        "description": "Modern Portfolio Theory (MPT) simulation for optimal risk/return frontier allocation.",
-        "url": "#",
-        "port": None,
-        "category": "ANALYTICS",
-        "icon": "briefcase",
-        "tags": ["Optimization", "MPT"],
-        "status": "coming-soon",
-        "release": "Q4 2026"
-    }
 ]
 
 
