@@ -550,6 +550,8 @@ def samc_api_versions_list():
                     except Exception:
                         pass
         versions.sort(key=lambda v: v.get("created_at", ""), reverse=True)
+        # Limit to up to last 15 days of runs
+        versions = versions[:15]
         return jsonify({"versions": versions})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
