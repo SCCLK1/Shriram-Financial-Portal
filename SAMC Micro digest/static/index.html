@@ -1225,11 +1225,12 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 
   /* Mobile header: add right-side generate button */
   .mobile-header {
+    display: flex !important;
     position: sticky;
     top: 0;
     z-index: 200;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 10px 14px;
     background: var(--bg-2);
     border-bottom: 1px solid var(--glass-border);
   }
@@ -1684,12 +1685,12 @@ html.embedded .main-content { padding-top: 0 !important; margin-top: 0 !importan
       <button id="btn-mweb-generate" style="
         display: inline-flex; align-items: center; gap: 6px;
         background: var(--accent); color: #000; border: none;
-        border-radius: 8px; font-weight: 700; font-size: 12px;
-        padding: 7px 14px; cursor: pointer; font-family: var(--font);
-        transition: all 0.15s ease;
+        border-radius: 8px; font-weight: 800; font-size: 12px;
+        padding: 8px 14px; cursor: pointer; font-family: var(--font-display);
+        transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(247, 181, 0, 0.35);
       ">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Generate
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        Generate Cards
       </button>
       <a href="/logout" title="Log Out" style="display:inline-flex; align-items:center; gap:4px; background:var(--down-bg); color:var(--danger); border:1px solid rgba(255, 59, 48, 0.2); border-radius:8px; font-weight:700; font-size:11px; padding:6px 10px; text-decoration:none; font-family:var(--font);">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
