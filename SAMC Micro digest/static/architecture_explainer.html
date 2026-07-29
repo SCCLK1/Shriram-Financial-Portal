@@ -3,501 +3,998 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System Architecture & Data Flow — SAMC Micro Digest</title>
+<title>How SAMC Micro Digest Works — Product Overview</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0b0f19;
-  --surface-1: #131b2e;
-  --surface-2: #1b2640;
-  --surface-3: #243254;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(247, 181, 0, 0.3);
-  --text: #f0f4fc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  --accent: #f7b500;
-  --accent-soft: rgba(247, 181, 0, 0.12);
-  --green: #34c759;
-  --green-soft: rgba(52, 199, 89, 0.12);
-  --blue: #0071e3;
-  --blue-soft: rgba(0, 113, 227, 0.12);
-  --purple: #af52de;
-  --purple-soft: rgba(175, 82, 222, 0.12);
-  --red: #ff3b30;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --bg: #05080f;
+  --surface: #0d1220;
+  --surface-2: #131b2e;
+  --border: rgba(255,255,255,0.07);
+  --gold: #F7B500;
+  --gold-soft: rgba(247,181,0,0.12);
+  --gold-glow: rgba(247,181,0,0.25);
+  --blue: #3B82F6;
+  --blue-soft: rgba(59,130,246,0.12);
+  --green: #10B981;
+  --green-soft: rgba(16,185,129,0.12);
+  --purple: #8B5CF6;
+  --purple-soft: rgba(139,92,246,0.12);
+  --pink: #EC4899;
+  --pink-soft: rgba(236,72,153,0.12);
+  --text: #F1F5F9;
+  --text-2: #94A3B8;
+  --text-3: #64748B;
+  --font: 'Outfit', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --r: 20px;
+  --r-sm: 12px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
 body {
-  background-color: var(--bg);
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(0, 113, 227, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(247, 181, 0, 0.06) 0%, transparent 40%);
+  background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   line-height: 1.6;
-  padding: 32px 20px 60px;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Animated background orbs ── */
+.bg-orbs {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.15;
+  animation: orb-drift 18s ease-in-out infinite alternate;
+}
+.orb-1 { width: 600px; height: 600px; background: var(--gold); top: -200px; left: -200px; animation-duration: 20s; }
+.orb-2 { width: 500px; height: 500px; background: var(--blue); bottom: -150px; right: -150px; animation-duration: 16s; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: var(--purple); top: 50%; left: 40%; animation-duration: 24s; animation-delay: -10s; }
+@keyframes orb-drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.08); }
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Header */
-.header {
+/* ── Hero ── */
+.hero {
   text-align: center;
-  margin-bottom: 48px;
-  position: relative;
+  padding: 80px 0 60px;
 }
-.badge {
+.hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-accent);
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-glow);
   border-radius: 99px;
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-.title {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 10px;
-}
-.subtitle {
-  font-size: 16px;
-  color: var(--text-muted);
-  max-width: 680px;
-  margin: 0 auto;
-}
-
-/* Stats Row */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
-}
-.stat-card {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-.stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-.stat-val {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  margin-bottom: 4px;
-}
-.stat-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-.stat-desc {
   font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 4px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: fade-up 0.6s ease both;
+}
+.hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 1.8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+.hero-title {
+  font-family: var(--font);
+  font-size: clamp(36px, 7vw, 68px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  animation: fade-up 0.6s 0.1s ease both;
+}
+.hero-title .gold { color: var(--gold); }
+.hero-title .dim { color: var(--text-2); }
+
+.hero-sub {
+  font-size: 18px;
+  color: var(--text-2);
+  max-width: 580px;
+  margin: 0 auto 40px;
+  font-weight: 400;
+  animation: fade-up 0.6s 0.2s ease both;
 }
 
-/* Architecture Pipeline Flow */
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 20px;
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section labels ── */
+.section-label {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-.section-title::before {
-  content: '';
-  width: 4px;
-  height: 20px;
-  background: var(--accent);
-  border-radius: 2px;
-}
-
-.flow-container {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 40px;
-  box-shadow: var(--shadow);
-}
-.flow-steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  position: relative;
-}
-.flow-step {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px;
-  position: relative;
-}
-.flow-step-num {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-  margin-bottom: 12px;
-}
-.flow-step-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.flow-step-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-/* Source Matrix Table */
-.source-matrix {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-  font-size: 13px;
-}
-.source-matrix th {
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-weight: 600;
-  text-align: left;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.source-matrix td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-}
-.source-matrix tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
-.tag {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
   font-size: 11px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-}
-.tag-yf { background: var(--blue-soft); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.2); }
-.tag-mc { background: var(--green-soft); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
-.tag-tt { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border-accent); }
-.tag-te { background: var(--purple-soft); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.2); }
-.tag-sc { background: rgba(244, 63, 94, 0.12); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.2); }
-
-/* Technical Details Section */
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
-}
-.detail-card {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: var(--shadow);
-}
-.detail-card h3 {
-  font-size: 16px;
   font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--text);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 16px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Step flow ── */
+.steps-wrapper {
+  position: relative;
+  padding: 20px 0 60px;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0 24px;
+  margin-bottom: 0;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.step-num {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-2);
+  background: var(--surface);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.4s ease;
 }
-.detail-card p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-.code-block {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: #e2e8f0;
-  overflow-x: auto;
+.step-num.gold { border-color: var(--gold-glow); color: var(--gold); background: var(--gold-soft); }
+.step-num.blue { border-color: rgba(59,130,246,0.35); color: var(--blue); background: var(--blue-soft); }
+.step-num.green { border-color: rgba(16,185,129,0.35); color: var(--green); background: var(--green-soft); }
+.step-num.purple { border-color: rgba(139,92,246,0.35); color: var(--purple); background: var(--purple-soft); }
+.step-num.pink { border-color: rgba(236,72,153,0.35); color: var(--pink); background: var(--pink-soft); }
+
+.step-line {
+  width: 2px;
+  flex: 1;
+  min-height: 40px;
+  background: linear-gradient(to bottom, var(--border), transparent);
+  margin: 8px 0;
 }
 
-/* Footer */
-.explainer-footer {
-  text-align: center;
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-  color: var(--text-dim);
+.step-body {
+  padding: 4px 0 48px;
+}
+.step-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.step-tag.gold { color: var(--gold); }
+.step-tag.blue { color: var(--blue); }
+.step-tag.green { color: var(--green); }
+.step-tag.purple { color: var(--purple); }
+.step-tag.pink { color: var(--pink); }
+
+.step-heading {
+  font-family: var(--font);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.step-desc {
+  font-size: 15px;
+  color: var(--text-2);
+  max-width: 640px;
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+
+/* ── Data source chips ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chip:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.chip.gold { background: var(--gold-soft); border-color: var(--gold-glow); color: var(--gold); }
+.chip.blue { background: var(--blue-soft); border-color: rgba(59,130,246,0.3); color: var(--blue); }
+.chip.green { background: var(--green-soft); border-color: rgba(16,185,129,0.3); color: var(--green); }
+.chip.purple { background: var(--purple-soft); border-color: rgba(139,92,246,0.3); color: var(--purple); }
+.chip.dim { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text-2); }
+
+/* ── Info cards ── */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.info-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-3px); }
+.info-card-icon { font-size: 22px; margin-bottom: 8px; }
+.info-card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.info-card-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+
+/* ── Flow diagram ── */
+.flow-diagram {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px;
+  margin-top: 16px;
+  overflow-x: auto;
+}
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: nowrap;
+  min-width: max-content;
+}
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  min-width: 110px;
+  font-size: 12px;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.flow-node:hover { border-color: rgba(247,181,0,0.4); transform: translateY(-2px); }
+.flow-node-icon { font-size: 20px; }
+.flow-node-label { color: var(--text); font-size: 11px; font-weight: 700; }
+.flow-node-sub { color: var(--text-3); font-size: 10px; font-weight: 400; }
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  color: var(--text-3);
+  font-size: 18px;
+  flex-shrink: 0;
+  animation: arrow-pulse 2s infinite;
+}
+@keyframes arrow-pulse {
+  0%,100%{opacity:0.4} 50%{opacity:1}
+}
+
+/* ── Data table ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 16px;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-2);
+  vertical-align: top;
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table td:first-child { color: var(--text); font-weight: 600; }
+.data-table .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.tag-live { background: rgba(16,185,129,0.15); color: var(--green); }
+.tag-cache { background: rgba(247,181,0,0.12); color: var(--gold); }
+.tag-news { background: rgba(59,130,246,0.12); color: var(--blue); }
+
+/* ── Card preview ── */
+.card-preview-mock {
+  background: #FCF9F2;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 16px;
+  max-width: 360px;
+  border: 1px solid rgba(247,181,0,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.card-preview-mock::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #F7B500, #FF9500);
+}
+.card-header-mock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.card-logo-placeholder {
+  width: 80px; height: 28px;
+  background: linear-gradient(90deg, #F7B500, #FF9500);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.card-date-mock { font-size: 10px; color: #888; font-family: var(--font-body); }
+.mock-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: #999;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.mock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-size: 12px;
+  font-family: var(--font-body);
+}
+.mock-row-label { color: #333; font-weight: 600; }
+.mock-row-val { color: #1A1A1A; font-weight: 700; }
+.mock-row-val.up { color: #1E8E3E; }
+.mock-row-val.down { color: #D93025; }
+.shimmer {
+  background: linear-gradient(90deg, #eeeeee 25%, #f5f5f5 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 4px;
+  height: 12px;
+}
+@keyframes shimmer { from{background-position:200%} to{background-position:-200%} }
+
+/* ── Highlight box ── */
+.highlight-box {
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-glow);
+  border-radius: var(--r-sm);
+  padding: 16px 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.highlight-box-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.highlight-box-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+.highlight-box-text strong { color: var(--gold); }
+
+/* ── Timeline CTA ── */
+.timeline-cta {
+  margin: 60px 0 80px;
+  text-align: center;
+}
+.timeline-cta h2 {
+  font-family: var(--font);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.timeline-cta p { font-size: 15px; color: var(--text-2); margin-bottom: 28px; }
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--gold);
+  color: #000;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-back:hover { background: #ffc930; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(247,181,0,0.4); }
+.btn-back svg { transition: transform 0.2s ease; }
+.btn-back:hover svg { transform: translateX(-3px); }
+
+/* ── FAQ ── */
+.faq-section { margin-bottom: 60px; }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 4px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  gap: 16px;
+  user-select: none;
+}
+.faq-q:hover { color: var(--gold); }
+.faq-icon { font-size: 20px; flex-shrink: 0; transition: transform 0.3s ease; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  padding: 0 4px;
+}
+.faq-item.open .faq-a { max-height: 300px; padding: 0 4px 18px; }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-3);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Scroll animations ── */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { padding: 52px 0 40px; }
+  .hero-title { font-size: 34px; }
+  .step { grid-template-columns: 44px 1fr; gap: 0 16px; }
+  .step-num { width: 44px; height: 44px; font-size: 15px; }
+  .step-heading { font-size: 20px; }
+  .step-body { padding-bottom: 32px; }
+  .info-grid { grid-template-columns: 1fr 1fr; }
+  .flow-diagram { padding: 16px; }
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <div class="badge">Architecture &amp; Data Pipeline</div>
-    <h1 class="title">How SAMC Micro Digest Works</h1>
-    <p class="subtitle">An interactive technical blueprint detailing data ingestion, validation, rendering, layout customization, and image archiving.</p>
-  </div>
-
-  <!-- Key Metrics -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-val">5</div>
-      <div class="stat-title">Data Ingestion Engines</div>
-      <div class="stat-desc">Yahoo Finance, Moneycontrol, Tickertape, TradingEconomics &amp; Screener</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">15+</div>
-      <div class="stat-title">Live Indicators Tracked</div>
-      <div class="stat-desc">Indices, MMI, FII/DII, G-Sec, Commodities, P/E &amp; Volatility</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">&lt;8s</div>
-      <div class="stat-title">Generation Latency</div>
-      <div class="stat-desc">Parallel fetching &amp; headless Playwright PNG rendering</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">100%</div>
-      <div class="stat-title">Validated Data Bounds</div>
-      <div class="stat-desc">Range guardrails to prevent erroneous market price spikes</div>
-    </div>
-  </div>
-
-  <!-- Pipeline Flow -->
-  <div class="flow-container">
-    <div class="section-title">End-to-End Execution Pipeline</div>
-    <div class="flow-steps">
-      <div class="flow-step">
-        <div class="flow-step-num">1</div>
-        <div class="flow-step-title">Data Ingestion</div>
-        <div class="flow-step-desc"><code>fetch.py</code> polls 5 APIs &amp; scrapers simultaneously with fallback handling.</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step-num">2</div>
-        <div class="flow-step-title">Range Validation</div>
-        <div class="flow-step-desc">Numeric outputs checked against <code>VAL_BOUNDS</code> guardrails to reject anomalies.</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step-num">3</div>
-        <div class="flow-step-title">Jinja2 Layout Render</div>
-        <div class="flow-step-desc"><code>render.py</code> merges data into <code>card_daily.html.j2</code> &amp; applies layout overrides.</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step-num">4</div>
-        <div class="flow-step-title">PNG Screenshot</div>
-        <div class="flow-step-desc">Headless Chromium captures <code>card_daily.png</code> at high device pixel ratio.</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-step-num">5</div>
-        <div class="flow-step-title">Auto-Archiving</div>
-        <div class="flow-step-desc">Snapshot archived into <code>versions/&lt;timestamp&gt;</code> for historical restoration.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data Sources Breakdown Matrix -->
-  <div class="flow-container">
-    <div class="section-title">Data Source Origin Matrix</div>
-    <table class="source-matrix">
-      <thead>
-        <tr>
-          <th>Metric / Indicator</th>
-          <th>Primary Source</th>
-          <th>API / Ingestion Tech</th>
-          <th>Update Frequency</th>
-          <th>Fallback Mechanism</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>BSE Sensex (^BSESN)</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>yfinance.download()</code></td>
-          <td>Realtime (5d Batch)</td>
-          <td><code>Ticker.info['previousClose']</code></td>
-        </tr>
-        <tr>
-          <td><strong>Nifty 50 (^NSEI)</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>yfinance.download()</code></td>
-          <td>Realtime (5d Batch)</td>
-          <td>Single Ticker Query Fallback</td>
-        </tr>
-        <tr>
-          <td><strong>Nifty Midcap 50 (^NSEMDCP50)</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>yfinance.download()</code></td>
-          <td>Realtime (5d Batch)</td>
-          <td>Previous Close Delta Calc</td>
-        </tr>
-        <tr>
-          <td><strong>Nifty Smallcap 100 (^CNXSC)</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>yfinance.download()</code></td>
-          <td>Realtime (5d Batch)</td>
-          <td>Previous Close Delta Calc</td>
-        </tr>
-        <tr>
-          <td><strong>Market Mood Index (MMI)</strong></td>
-          <td><span class="tag tag-tt">Tickertape MMI</span></td>
-          <td><code>HTTP GET /mmi/now</code></td>
-          <td>Daily Stream</td>
-          <td>Neutral Zone Fallback</td>
-        </tr>
-        <tr>
-          <td><strong>FII / DII Net Cash Flows</strong></td>
-          <td><span class="tag tag-mc">Moneycontrol</span></td>
-          <td><code>__NEXT_DATA__ JSON Scraper</code></td>
-          <td>End of Day (EOD)</td>
-          <td>Regex Page Extraction</td>
-        </tr>
-        <tr>
-          <td><strong>Commodities (Brent, Gold, Silver)</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>BZ=F</code>, <code>GC=F</code>, <code>SI=F</code></td>
-          <td>Realtime Futures</td>
-          <td>Last Closing Price</td>
-        </tr>
-        <tr>
-          <td><strong>USD / INR Exchange Rate</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>USDINR=X</code></td>
-          <td>Realtime FX</td>
-          <td>Prior Day FX Close</td>
-        </tr>
-        <tr>
-          <td><strong>10Y Benchmark G-Sec Yield</strong></td>
-          <td><span class="tag tag-te">TradingEconomics</span></td>
-          <td><code>India Bond 10Y HTML Scraper</code></td>
-          <td>Daily Feed</td>
-          <td>Cached Yield Value</td>
-        </tr>
-        <tr>
-          <td><strong>Nifty 50, Midcap &amp; Smallcap P/E</strong></td>
-          <td><span class="tag tag-sc">Screener.in</span></td>
-          <td><code>Screener API / HTML Parser</code></td>
-          <td>Daily Valuation</td>
-          <td>Historical Average PE</td>
-        </tr>
-        <tr>
-          <td><strong>India VIX &amp; US 10Y Yield</strong></td>
-          <td><span class="tag tag-yf">Yahoo Finance</span></td>
-          <td><code>^INDIAVIX</code>, <code>^TNX</code></td>
-          <td>Realtime Market</td>
-          <td>Prior Day VIX Close</td>
-        </tr>
-        <tr>
-          <td><strong>Financial News Headlines</strong></td>
-          <td><span class="tag tag-mc">Moneycontrol News</span></td>
-          <td><code>RSS Feed Parser</code></td>
-          <td>Continuous Feed</td>
-          <td>Top Market Headlines</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Deep Dive Technical Cards -->
-  <div class="details-grid">
-    <div class="detail-card">
-      <h3>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Data Guardrails &amp; Validation
-      </h3>
-      <p>Every fetched value passes through strict range validation limits before reaching the HTML template. Values outside reasonable bounds are safely logged and omitted to protect report integrity.</p>
-      <div class="code-block">
-VAL_BOUNDS = {<br>
-&nbsp;&nbsp;"bse": (40000.0, 180000.0),<br>
-&nbsp;&nbsp;"nse": (12000.0, 55000.0),<br>
-&nbsp;&nbsp;"fii": (-30000.0, 30000.0),<br>
-&nbsp;&nbsp;"brent": (30.0, 180.0),<br>
-&nbsp;&nbsp;"vix": (5.0, 60.0),<br>
-}
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <h3>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.72 1.7-1.65 0-.43-.17-.83-.44-1.13-.27-.3-.43-.7-.43-1.13 0-.93.75-1.69 1.68-1.69h1.99c2.76 0 5-2.24 5-5 0-4.97-4.03-9.5-9.5-9.5z"/></svg>
-        Drag &amp; Drop Layout Customizer
-      </h3>
-      <p>Users can reorder DOM elements, adjust fonts, hide elements, or apply custom colors directly from the browser dashboard. Selections are safely persisted in SQLite and <code>layout_overrides.json</code>.</p>
-      <div class="code-block">
-// Dynamic class stripping prevents layout grid shift<br>
-selector = selector.replace(/\.(up|down|flat|pos|neg)/g, '');<br>
-render.py safe_reorder(parent, dom_orders)
-      </div>
-    </div>
-
-    <div class="detail-card">
-      <h3>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        Auto-Archiving &amp; Restoration
-      </h3>
-      <p>Every report run automatically snapshots generated PNG cards and HTML source into <code>output/versions/&lt;YYYYMMDD_HHMMSS&gt;</code>. Past versions can be previewed or restored with 1 click.</p>
-      <div class="code-block">
-POST /api/version/restore/&lt;version_id&gt;<br>
-- Restores layout_overrides.json<br>
-- Restores active card_daily.png<br>
-- Triggers instant live dashboard reload
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="explainer-footer">
-    SAMC Micro Digest Architecture Explainer &bull; Shriram Asset Management Company &bull; Running locally at http://127.0.0.1:8000/
-  </div>
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
 </div>
 
+<div class="container">
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Product Overview · SAMC Micro Digest
+    </div>
+    <h1 class="hero-title">
+      How the<br>
+      <span class="gold">Daily Market Card</span><br>
+      <span class="dim">Gets to your team</span>
+    </h1>
+    <p class="hero-sub">
+      A simple, visual walkthrough of how the Micro Digest collects live market data, builds the card, and sends it — every day.
+    </p>
+  </div>
+
+  <!-- ── Big picture flow ── -->
+  <div class="reveal">
+    <div class="section-label">The big picture</div>
+    <div class="flow-diagram">
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-node-icon">🌐</div>
+          <div class="flow-node-label">Live Markets</div>
+          <div class="flow-node-sub">BSE · NSE · Forex</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">⚙️</div>
+          <div class="flow-node-label">Data Engine</div>
+          <div class="flow-node-sub">Fetches & cleans</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🎨</div>
+          <div class="flow-node-label">Card Builder</div>
+          <div class="flow-node-sub">Renders to image</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">🖼️</div>
+          <div class="flow-node-label">PNG Image</div>
+          <div class="flow-node-sub">Ready to share</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <div class="flow-node-icon">📲</div>
+          <div class="flow-node-label">WhatsApp</div>
+          <div class="flow-node-sub">Teams notified</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Steps ── -->
+  <div class="steps-wrapper" style="margin-top: 60px;">
+
+    <!-- Step 1 -->
+    <div class="step" id="step-1">
+      <div class="step-left">
+        <div class="step-num gold">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-tag gold">Where the numbers come from</div>
+        <h2 class="step-heading">Live market data, pulled automatically</h2>
+        <p class="step-desc">
+          Every time someone clicks <strong style="color:var(--text)">Generate</strong>, the system goes out to the internet and fetches the latest numbers from multiple financial sources. No manual entry — it's all automated. The data is the same data you'd see on a stock exchange terminal.
+        </p>
+
+        <div class="chips">
+          <div class="chip gold">📈 BSE Sensex</div>
+          <div class="chip gold">📈 NSE Nifty</div>
+          <div class="chip gold">📈 Midcap 150</div>
+          <div class="chip gold">📈 Smallcap 250</div>
+        </div>
+        <div class="chips">
+          <div class="chip blue">💰 Gold & Silver</div>
+          <div class="chip blue">🛢️ Brent Crude</div>
+          <div class="chip blue">💵 USD/INR</div>
+          <div class="chip blue">🏛️ G-Sec Yield</div>
+        </div>
+        <div class="chips">
+          <div class="chip green">🏦 FII Flow</div>
+          <div class="chip green">🏦 DII Flow</div>
+          <div class="chip green">📊 Market P/E</div>
+          <div class="chip green">⚡ VIX</div>
+        </div>
+        <div class="chips">
+          <div class="chip purple">📰 Top Market News</div>
+          <div class="chip purple">🌎 US 10Y Yield</div>
+          <div class="chip purple">💲 Dollar Index (DXY)</div>
+        </div>
+
+        <div class="highlight-box">
+          <div class="highlight-box-icon">💡</div>
+          <div class="highlight-box-text">
+            <strong>Source: Yahoo Finance (yfinance)</strong> — the same data provider used by Bloomberg terminals and professional trading tools. It's free, reliable, and updates in near real-time throughout the trading day.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step-2">
+      <div class="step-left">
+        <div class="step-num blue">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-tag blue">What gets collected</div>
+        <h2 class="step-heading">Every metric, explained in plain English</h2>
+        <p class="step-desc">
+          Here's exactly what data is on each card and what it tells us:
+        </p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>What it means</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BSE / NSE</td>
+              <td>The two main Indian stock market indices — like a health score for the market</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>Midcap & Smallcap</td>
+              <td>Performance of mid-sized and smaller companies — shows risk appetite</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>FII / DII Flows</td>
+              <td>How much foreign vs. domestic institutions are buying or selling that day</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>Gold & Silver</td>
+              <td>Precious metal prices — investors watch these as safe-haven assets</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>Brent Crude</td>
+              <td>Global oil price — directly impacts inflation and Indian markets</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>USD / INR</td>
+              <td>Dollar-rupee rate — affects import costs and corporate earnings</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>Market P/E Ratio</td>
+              <td>Is the market expensive or cheap right now? A lower P/E = better value</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>VIX (Fear Index)</td>
+              <td>Higher VIX = more uncertainty. Traders use this to gauge market mood</td>
+              <td><span class="tag tag-live">Live</span></td>
+            </tr>
+            <tr>
+              <td>Top Headlines</td>
+              <td>Key financial news stories of the day — curated automatically</td>
+              <td><span class="tag tag-news">News</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" id="step-3">
+      <div class="step-left">
+        <div class="step-num green">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-tag green">The output</div>
+        <h2 class="step-heading">A ready-to-share image card</h2>
+        <p class="step-desc">
+          All that data is laid out into a beautifully designed card image — sized perfectly for WhatsApp. The card includes your company logo, brand colours, date, all the metrics, and a legal disclaimer at the bottom.
+        </p>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+          <div class="card-preview-mock">
+            <div class="card-preview-mock::before"></div>
+            <div class="card-header-mock">
+              <div class="card-logo-placeholder">SHRIRAM AMC</div>
+              <div class="card-date-mock">Tuesday, 29 Jul 2025</div>
+            </div>
+            <div class="mock-section-title">📈 Indian Indices</div>
+            <div class="mock-row">
+              <span class="mock-row-label">BSE Sensex</span>
+              <span class="mock-row-val up">82,450 ▲ 0.42%</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-label">NSE Nifty</span>
+              <span class="mock-row-val up">24,810 ▲ 0.38%</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-label">Midcap 150</span>
+              <span class="mock-row-val down">18,220 ▼ 0.14%</span>
+            </div>
+            <br>
+            <div class="mock-section-title">💰 Commodities & FX</div>
+            <div class="mock-row">
+              <span class="mock-row-label">Gold</span>
+              <span class="mock-row-val up">₹72,450 ▲</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row-label">USD/INR</span>
+              <span class="mock-row-val">₹83.62</span>
+            </div>
+            <br>
+            <div style="font-size: 8px; color: #bbb; line-height: 1.4; margin-top: 6px;">
+              Mutual Fund investments are subject to market risks, read all scheme related documents carefully.
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 220px;">
+            <div class="info-grid" style="margin-top: 0;">
+              <div class="info-card">
+                <div class="info-card-icon">🖼️</div>
+                <div class="info-card-title">PNG Image</div>
+                <div class="info-card-desc">A crystal-clear image file — download or copy directly</div>
+              </div>
+              <div class="info-card">
+                <div class="info-card-icon">📐</div>
+                <div class="info-card-title">WhatsApp-Ready</div>
+                <div class="info-card-desc">Sized and proportioned for mobile sharing</div>
+              </div>
+              <div class="info-card">
+                <div class="info-card-icon">🏷️</div>
+                <div class="info-card-title">Branded</div>
+                <div class="info-card-desc">Your logo, colours, and disclaimer auto-applied</div>
+              </div>
+              <div class="info-card">
+                <div class="info-card-icon">📅</div>
+                <div class="info-card-title">Dated</div>
+                <div class="info-card-desc">Card is stamped with the current date automatically</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" id="step-4">
+      <div class="step-left">
+        <div class="step-num purple">4</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-tag purple">Publishing</div>
+        <h2 class="step-heading">One click to send — or keep for later</h2>
+        <p class="step-desc">
+          Once the card is generated, your team has two options: <strong style="color:var(--text)">Download / Copy</strong> the image to share manually in any WhatsApp group, or hit <strong style="color:var(--text)">Publish to Teams</strong> to automatically send it to a Microsoft Teams channel via webhook.
+        </p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">📥</div>
+            <div class="info-card-title">Download as PNG</div>
+            <div class="info-card-desc">Save the image to your device and share in any WhatsApp group</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📋</div>
+            <div class="info-card-title">Copy to Clipboard</div>
+            <div class="info-card-desc">One click — paste directly into any chat window</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🔗</div>
+            <div class="info-card-title">Publish to Teams</div>
+            <div class="info-card-desc">Sends automatically to a configured Microsoft Teams channel</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🗄️</div>
+            <div class="info-card-title">Auto-Archived</div>
+            <div class="info-card-desc">Last 15 days of cards are saved — access anytime from Archives</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step" id="step-5">
+      <div class="step-left">
+        <div class="step-num pink">5</div>
+      </div>
+      <div class="step-body">
+        <div class="step-tag pink">Controls & customisation</div>
+        <h2 class="step-heading">Your team is always in control</h2>
+        <p class="step-desc">
+          The system is designed to be self-service. No developer needed for day-to-day use. Here's what your team can manage directly from the portal:
+        </p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">🏢</div>
+            <div class="info-card-title">Company Logo</div>
+            <div class="info-card-desc">Switch between Shriram AMC, Wealth, Insights, or Financial logos instantly</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🎨</div>
+            <div class="info-card-title">Brand Colours</div>
+            <div class="info-card-desc">Adjust background, text, and highlight colours to match your campaign</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">✍️</div>
+            <div class="info-card-title">Override Data</div>
+            <div class="info-card-desc">Markets closed? Manually enter any value before generating</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📝</div>
+            <div class="info-card-title">Disclaimer Text</div>
+            <div class="info-card-desc">Edit the footer disclaimer — changes apply immediately</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">👥</div>
+            <div class="info-card-title">User Management</div>
+            <div class="info-card-desc">Add team members, assign admin roles, and control access</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📊</div>
+            <div class="info-card-title">Activity Log</div>
+            <div class="info-card-desc">See who generated, published, or changed settings — with timestamps</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /steps-wrapper -->
+
+  <!-- ── FAQ ── -->
+  <div class="reveal faq-section">
+    <div class="section-label">Frequently asked</div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        How long does generation take?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        Typically 15–45 seconds. The system fetches data from multiple sources simultaneously, processes it, and renders the image. If some data sources are slow (like during market open/close), it may take slightly longer.
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        What if the market is closed or a value is missing?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        The system will show a dash (—) for any metric it couldn't fetch. You can use the <strong>Manual Override</strong> feature in the sidebar to enter any missing values before generating, so the card always looks complete.
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        Is the data accurate? Where exactly does it come from?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        Yes — the data comes from Yahoo Finance (yfinance), which sources from official exchange feeds. It's the same data used by professional financial platforms. There may be a 15-minute delay during live trading hours, which is standard across all financial data providers at this price point.
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        Can we change what logo appears on the card?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        Yes. In Admin Settings → Branding & Logos, you can select which Shriram entity logo appears (AMC, Wealth, Insights, or Financial Services), and you can also upload a new logo image at any time. The change takes effect immediately for the next generation.
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        How are old cards saved? Can we go back?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        Every generated card is automatically archived. You can access the last 15 days of cards from the <strong>Archives</strong> button on the main screen. Each archive entry shows the card image with its original date and timestamp.
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        Does this work on mobile?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">
+        Yes. The portal is fully responsive and works on any phone browser. You can generate, preview, copy, and share the card all from your mobile device — no desktop needed.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="timeline-cta reveal">
+    <h2>Ready to generate today's card?</h2>
+    <p>Go back to the main app and click Generate — your card will be ready in under a minute.</p>
+    <a href="/" class="btn-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Go to the App
+    </a>
+  </div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  SAMC Micro Digest · Shriram Financial Portal · Internal Product Documentation
+</div>
+
+<script>
+// ── Intersection observer for scroll reveals ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Steps get staggered reveals
+const stepObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.step').forEach((step, i) => {
+  step.style.transitionDelay = `${i * 0.05}s`;
+  stepObserver.observe(step);
+});
+
+// ── FAQ toggle ──
+function toggleFaq(el) {
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(f => f.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+</script>
 </body>
 </html>
