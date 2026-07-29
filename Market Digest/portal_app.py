@@ -1058,7 +1058,7 @@ def md_card_news_png():
 
 # Register Blueprints on Master App
 app.register_blueprint(samc_bp, url_prefix="/tools/samc-micro-digest")
-# app.register_blueprint(market_bp, url_prefix="/tools/market-digest-pdf")
+app.register_blueprint(samc_bp, name="samc_alt", url_prefix="/micro-digest")
 
 
 # ---------------------------------------------------------------------------
@@ -1398,7 +1398,12 @@ def admin_list_logs():
 
 @app.route("/")
 def index():
-    return redirect("/tools/samc-micro-digest/")
+    return send_file(SAMC_STATIC / "index.html", mimetype="text/html")
+
+
+@app.route("/explainer")
+def explainer():
+    return send_file(SAMC_STATIC / "architecture_explainer.html", mimetype="text/html")
 
 
 def get_company_logo(company_id: str) -> tuple[bytes, str] | None:
