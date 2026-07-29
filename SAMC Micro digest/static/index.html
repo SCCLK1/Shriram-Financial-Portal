@@ -1649,13 +1649,11 @@ textarea.field-input { resize: vertical; min-height: 70px; }
   color: #000;
   border-color: var(--accent);
 }
-/* ─── Embedded (iframe) mode: hide SAMC's own chrome so the portal's
-       viewport-toolbar is the only header visible ─── */
+/* ─── Embedded (iframe) mode: only hide the mobile top-bar and bottom-nav
+       that cause a double-header. The sidebar stays so controls remain usable ─── */
 html.embedded .mobile-header,
-html.embedded #mweb-bottom-nav,
-html.embedded .sidebar { display: none !important; }
-html.embedded .app-layout { grid-template-rows: 1fr; grid-template-columns: 1fr; }
-html.embedded .main-content { padding-top: 0 !important; margin-top: 0 !important; overflow: auto; }
+html.embedded #mweb-bottom-nav { display: none !important; }
+html.embedded .main-content { padding-top: 0 !important; margin-top: 0 !important; }
 </style>
 </head>
 <body>
