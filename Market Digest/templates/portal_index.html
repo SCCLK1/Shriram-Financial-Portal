@@ -1485,22 +1485,7 @@ function notifyMe(id) {
 function launchTool(id) {
   const tool = toolsData.find(t => t.id === id);
   if (!tool || tool.status !== 'online') return;
-  
-  toggleSidebar(false);
-  activeTool = tool;
-  
-  // Update header and navigation buttons
-  $('#menu-btn-marketplace').classList.remove('active');
-  $('#portal-header').style.display = 'none';
-  
-  // Configure iframe with cache-busting and display panel
-  $('#viewport-iframe').src = tool.url + '?v=' + Date.now();
-  $('#viewport-active-title').textContent = tool.name;
-  
-  $('#view-marketplace').classList.remove('active');
-  $('#view-iframe-viewport').classList.add('active');
-  
-  updateActiveToolsSidebar();
+  window.location.href = tool.url;
 }
 
 function closeViewport() {
