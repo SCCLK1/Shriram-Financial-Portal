@@ -256,22 +256,30 @@ def _render_png(card_type: str) -> Path:
     # Auto-crop bottom empty space
     try:
         from PIL import Image
-        img = Image.open(png_file)
+        img = Image.open(png_file).convert("RGB")
         w, h = img.size
-        bg = img.getpixel((0, h - 1))
+        bg1 = img.getpixel((0, h - 1))
+        bg2 = img.getpixel((w - 1, h - 1))
+        bg3 = img.getpixel((0, 0))
+
+        def is_bg(pixel):
+            for bg in (bg1, bg2, bg3):
+                if abs(pixel[0] - bg[0]) < 12 and abs(pixel[1] - bg[1]) < 12 and abs(pixel[2] - bg[2]) < 12:
+                    return True
+            return False
+
         last_y = h - 1
         found = False
-        for y in range(h - 1, 0, -1):
-            for x in range(w):
-                if img.getpixel((x, y))[:3] != bg[:3]:
+        for y in range(h - 1, -1, -1):
+            for x in range(0, w, 4):
+                if not is_bg(img.getpixel((x, y))):
                     last_y = y
                     found = True
                     break
             if found:
                 break
         
-        # Add 20px padding at the bottom
-        target_h = min(h, last_y + 20)
+        target_h = min(h, last_y + 24)
         if target_h < h:
             cropped = img.crop((0, 0, w, target_h))
             cropped.save(png_file)
