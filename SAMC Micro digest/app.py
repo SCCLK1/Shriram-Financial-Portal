@@ -667,10 +667,9 @@ def get_company_logo(company_id: str) -> tuple[bytes, str] | None:
 
 @app.route("/logo.jpeg")
 def logo():
-    company_id = request.args.get("c")
-    if not company_id or company_id not in ("wealth", "amc", "insights", "financial"):
-        cfg = _load_config()
-        company_id = cfg.get("active_company", "wealth")
+    company_id = request.args.get("c") or "amc"
+    if company_id not in ("amc",):
+        company_id = "amc"
     logo_info = get_company_logo(company_id)
     if logo_info:
         content, mime = logo_info
