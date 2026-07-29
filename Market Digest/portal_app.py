@@ -1416,8 +1416,9 @@ def admin_list_logs():
 
 
 @app.route("/")
+@app.route("/portal")
 def index():
-    return send_file(SAMC_STATIC / "index.html", mimetype="text/html")
+    return render_template("portal_index.html")
 
 
 @app.route("/explainer")
