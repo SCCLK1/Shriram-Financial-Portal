@@ -1197,6 +1197,16 @@ textarea.field-input { resize: vertical; min-height: 70px; }
   }
 }
 
+/* Mobile simplified: only show the Generate button header + card preview */
+@media (max-width: 768px) {
+  /* Hide all complex mobile chrome — keep it to just Generate + card */
+  #mweb-status-strip,
+  #mweb-action-row,
+  #mweb-bottom-nav,
+  .mweb-sheet,
+  #mweb-sheet-overlay { display: none !important; }
+}
+
 /* ── Mobile (768px): Full mweb layout ── */
 @media (max-width: 768px) {
   /* Allow vertical scrolling on mobile */
@@ -1211,7 +1221,6 @@ textarea.field-input { resize: vertical; min-height: 70px; }
     height: auto;
     min-height: 100vh;
     overflow: visible;
-    padding-bottom: 72px; /* clear bottom tab bar */
   }
 
   /* Mobile header: add right-side generate button */
