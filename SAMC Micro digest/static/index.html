@@ -1649,6 +1649,13 @@ textarea.field-input { resize: vertical; min-height: 70px; }
   color: #000;
   border-color: var(--accent);
 }
+/* ─── Embedded (iframe) mode: hide SAMC's own chrome so the portal's
+       viewport-toolbar is the only header visible ─── */
+html.embedded .mobile-header,
+html.embedded #mweb-bottom-nav,
+html.embedded .sidebar { display: none !important; }
+html.embedded .app-layout { grid-template-rows: 1fr; grid-template-columns: 1fr; }
+html.embedded .main-content { padding-top: 0 !important; margin-top: 0 !important; overflow: auto; }
 </style>
 </head>
 <body>
@@ -2475,6 +2482,14 @@ textarea.field-input { resize: vertical; min-height: 70px; }
 /* ─── Utilities ─── */
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
+
+/* ─── Iframe embed detection: hide SAMC's own mobile header & bottom nav
+       when loaded inside the portal viewport so there's no double-header ─── */
+(function() {
+  if (window.self !== window.top) {
+    document.documentElement.classList.add('embedded');
+  }
+})();
 
 function toast(msg, type = 'info', dur = 4000) {
   const el = document.createElement('div');
