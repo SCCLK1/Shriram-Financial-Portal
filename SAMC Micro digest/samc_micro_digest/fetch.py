@@ -551,7 +551,8 @@ def fetch_all() -> dict[str, Any]:
     print("  [fetch] Fetching news headlines...")
     headlines = fetch_news()
 
-    now = datetime.now()
+    ist = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(ist)
 
     # Packaged in the exact structure expected by the render templates
     return {

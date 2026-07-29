@@ -2485,7 +2485,7 @@ function toast(msg, type = 'info', dur = 4000) {
 }
 
 function ts() {
-  return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 }
 
 function log(msg, cls = '') {
@@ -2574,8 +2574,8 @@ async function loadStatus() {
       $('#stat-status').textContent = 'Ready';
       $('#stat-status').style.color = 'var(--up)';
       $('#stat-status-sub').textContent = 'Cards generated successfully';
-      $('#stat-time').textContent = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-      $('#stat-time-sub').textContent = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      $('#stat-time').textContent = d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+      $('#stat-time-sub').textContent = d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' }) + ' IST';
     } else {
       dot.className = 'dot warn';
       txt.textContent = 'No report';
@@ -5973,7 +5973,7 @@ async function loadPreviousDaysArchive() {
       const card = document.createElement('div');
       card.className = 'archive-card';
       const imgUrl = `/tools/samc-micro-digest/api/version/${ver.id}/image`;
-      const dateStr = ver.created_at ? new Date(ver.created_at).toLocaleString() : ver.id;
+      const dateStr = ver.created_at ? new Date(ver.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) + ' IST' : ver.id;
       
       card.innerHTML = `
         <div class="archive-thumb-wrap" onclick="previewImageInLightbox('${imgUrl}', '${ver.name || 'Daily Card'} - ${dateStr}')">

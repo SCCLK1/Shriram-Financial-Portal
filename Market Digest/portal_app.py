@@ -13,8 +13,13 @@ import shutil
 import subprocess
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def now_ist() -> datetime:
+    return datetime.now(IST)
 from flask import Flask, Blueprint, jsonify, request, send_file, render_template, send_from_directory, abort, Response, session, redirect, url_for
 import db_helper
 
@@ -353,7 +358,7 @@ def _samc_render_png(card_type: str) -> Path:
 
     # Auto-archive snapshot to SAMC_VERSIONS_DIR
     try:
-        version_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+        version_id = now_ist().strftime('%Y%m%d_%H%M%S')
         ver_dir = SAMC_VERSIONS_DIR / version_id
         ver_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(png_file, ver_dir / "card_daily.png")
@@ -363,8 +368,8 @@ def _samc_render_png(card_type: str) -> Path:
             shutil.copy2(overrides_file, ver_dir / "layout_overrides.json")
         meta = {
             "id": version_id,
-            "name": f"Daily Card {datetime.now().strftime('%b %d, %Y %I:%M %p')}",
-            "created_at": datetime.now().isoformat(),
+            "name": f"Daily Card {now_ist().strftime('%b %d, %Y %I:%M %p IST')}",
+            "created_at": now_ist().isoformat(),
             "user": "System (Auto-generated)",
         }
         (ver_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -509,7 +514,7 @@ def samc_api_reset_card():
 def samc_api_version_save():
     try:
         body = request.get_json(force=True, silent=True) or {}
-        version_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+        version_id = now_ist().strftime('%Y%m%d_%H%M%S')
         name = body.get("name") or f"Version {version_id}"
         ver_dir = SAMC_VERSIONS_DIR / version_id
         ver_dir.mkdir(parents=True, exist_ok=True)
@@ -519,7 +524,7 @@ def samc_api_version_save():
             if src.exists():
                 shutil.copy2(src, ver_dir / fname)
 
-        created_at = datetime.now().isoformat()
+        created_at = now_ist().isoformat()
         meta = {
             "id": version_id,
             "name": name,

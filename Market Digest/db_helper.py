@@ -468,11 +468,25 @@ def add_log(mobile: str, action: str):
         conn.close()
 
 
+from datetime import datetime, timezone, timedelta
+
 def list_logs(limit: int = 100) -> list[dict]:
     conn = get_db_conn()
     cursor = conn.cursor()
     try:
         cursor.execute(_q("SELECT mobile, action, timestamp FROM logs ORDER BY timestamp DESC LIMIT ?"), (limit,))
-        return [dict(r) for r in cursor.fetchall()]
+        logs = []
+        for r in cursor.fetchall():
+            item = dict(r)
+            ts_str = str(item.get("timestamp") or "")
+            if ts_str:
+                try:
+                    dt_utc = datetime.strptime(ts_str[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                    dt_ist = dt_utc.astimezone(timezone(timedelta(hours=5, minutes=30)))
+                    item["timestamp"] = dt_ist.strftime("%d %b %Y, %I:%M:%S %p IST")
+                except Exception:
+                    pass
+            logs.append(item)
+        return logs
     finally:
         conn.close()
