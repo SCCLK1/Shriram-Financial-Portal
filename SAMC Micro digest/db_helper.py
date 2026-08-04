@@ -69,10 +69,19 @@ def init_db():
             except Exception:
                 pass
                 
+        DEFAULT_DISCLAIMER_TEXT = (
+            "The information contained in this document is compiled from third party and publicly available sources and is included for general information purposes only. "
+            "There can be no assurance and guarantee on the yields. Views expressed cannot be construed to be a decision to invest. "
+            "The statements contained herein are based on current views and involve known and unknown risks and uncertainties. "
+            "Whilst Shriram Asset Management Company Limited (the AMC) shall have no responsibility/liability whatsoever for the accuracy or any use or reliance thereof of such information. "
+            "The AMC, its associate or sponsors or group companies, its Directors or employees accepts no liability for any loss or damage of any kind resulting out of the use of this document. "
+            "The recipient(s) before acting on any information herein should make his/her/their own investigation and seek appropriate professional advice and shall alone be fully responsible / liable for any decision taken on the basis of information contained herein. "
+            "Any reliance on the accuracy or use of such information shall be done only after consultation to the financial consultant to understand the specific legal, tax or financial implications."
+        )
         default_config = {
-            "active_company": config_data.get("active_company", "wealth"),
+            "active_company": config_data.get("active_company", "amc"),
             "webhook_url": config_data.get("webhook_url", ""),
-            "disclaimer_text": config_data.get("disclaimer_text", "Mutual Fund investments are subject to market risks, read all scheme related documents carefully."),
+            "disclaimer_text": config_data.get("disclaimer_text", DEFAULT_DISCLAIMER_TEXT),
             "watermark_mode": config_data.get("watermark_mode", "both"),
             "brand_colors": json.dumps(config_data.get("brand_colors", {
                 "bg_color": "#FCF9F2",
@@ -148,9 +157,9 @@ def load_db_config() -> dict:
         
         # Ensure mandatory keys are populated with defaults
         defaults = {
-            "active_company": "wealth",
+            "active_company": "amc",
             "webhook_url": "",
-            "disclaimer_text": "Mutual Fund investments are subject to market risks, read all scheme related documents carefully.",
+            "disclaimer_text": DEFAULT_DISCLAIMER_TEXT,
             "watermark_mode": "both",
             "brand_colors": {"bg_color": "#FCF9F2", "text_color": "#1A1A1A", "yellow_brand": "#F7B500", "gray_text": "#555555"},
             "manual_override": False,
