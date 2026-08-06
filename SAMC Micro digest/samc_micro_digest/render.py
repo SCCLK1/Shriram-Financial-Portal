@@ -197,7 +197,11 @@ def render_report(data: dict[str, Any], output_dir: Path) -> None:
         "The recipient(s) before acting on any information herein should make his/her/their own investigation and seek appropriate professional advice and shall alone be fully responsible / liable for any decision taken on the basis of information contained herein. "
         "Any reliance on the accuracy or use of such information shall be done only after consultation to the financial consultant to understand the specific legal, tax or financial implications."
     )
-    disclaimer_text = config.get("disclaimer_text") or DEFAULT_COMPLIANCE_DISCLAIMER
+    raw_disc = config.get("disclaimer_text", "")
+    if not raw_disc or len(raw_disc) < 100 or "Mutual Fund investments" in raw_disc:
+        disclaimer_text = DEFAULT_COMPLIANCE_DISCLAIMER
+    else:
+        disclaimer_text = raw_disc
     
     # Dynamic per-company logo (matches the rest of the portal's branding switch).
     # Prefer a vector .svg export over the .jpeg raster when one exists.

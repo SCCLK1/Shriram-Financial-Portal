@@ -38,6 +38,12 @@ app.secret_key = os.environ.get("SECRET_KEY", "shriram_marketplace_secret_key")
 # Initialize database
 db_helper.init_db()
 
+# Auto re-render existing cards on startup to sync compliance & template updates
+try:
+    _samc_rerender_cards()
+except Exception as _e:
+    pass
+
 
 # ---------------------------------------------------------------------------
 # Chrome Browser Discovery Helper

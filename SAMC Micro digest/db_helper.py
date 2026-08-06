@@ -156,8 +156,18 @@ def load_db_config() -> dict:
             else:
                 cfg[k] = v
         
+        defaults = {
+            "active_company": "amc",
+            "webhook_url": "",
+            "disclaimer_text": DEFAULT_DISCLAIMER_TEXT,
+            "watermark_mode": "both",
+            "brand_colors": {"bg_color": "#FCF9F2", "text_color": "#1A1A1A", "yellow_brand": "#F7B500", "gray_text": "#555555"},
+            "manual_override": False,
+            "overrides": {"date": "", "bse_value": "", "bse_change": "", "nse_value": "", "nse_change": "", "mid_value": "", "mid_change": "", "small_value": "", "small_change": "", "fii_value": "", "dii_value": "", "brent_value": "", "gold_value": "", "silver_value": "", "usdinr_value": "", "gsec_value": "", "pe_value": "", "vix_value": "", "us10y_value": "", "dxy_value": "", "midcap_pe_value": "", "smallcap_pe_value": "", "headlines": []}
+        }
+
         # Auto-upgrade legacy short disclaimer text to full compliance disclaimer
-        if not cfg.get("disclaimer_text") or "Mutual Fund investments are subject to market risks" in cfg.get("disclaimer_text", ""):
+        if not cfg.get("disclaimer_text") or len(cfg.get("disclaimer_text", "")) < 100 or "Mutual Fund investments" in cfg.get("disclaimer_text", ""):
             cfg["disclaimer_text"] = DEFAULT_DISCLAIMER_TEXT
             try:
                 cursor.execute("INSERT OR REPLACE INTO configs (key, value) VALUES ('disclaimer_text', ?)", (DEFAULT_DISCLAIMER_TEXT,))
