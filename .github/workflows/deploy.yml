@@ -61,6 +61,7 @@ jobs:
             --parameters "commands=[
               'export ECR_REGISTRY=${{ env.ECR_REGISTRY }}',
               'export IMAGE_TAG=${{ steps.tag.outputs.SHA }}',
+              'aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}',
               'cd /opt/shriram',
               'docker compose -f docker-compose.prod.yml pull shriram-micro-digest shriram-market-digest',
               'docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate shriram-micro-digest shriram-market-digest',
