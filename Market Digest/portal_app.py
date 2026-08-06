@@ -38,12 +38,6 @@ app.secret_key = os.environ.get("SECRET_KEY", "shriram_marketplace_secret_key")
 # Initialize database
 db_helper.init_db()
 
-# Auto re-render existing cards on startup to sync compliance & template updates
-try:
-    _samc_rerender_cards()
-except Exception as _e:
-    pass
-
 
 # ---------------------------------------------------------------------------
 # Chrome Browser Discovery Helper
@@ -165,15 +159,21 @@ def _samc_rerender_cards() -> bool:
         pass
     samc_render.render_report(data, SAMC_OUTPUT)
     # Invalidate cached PNGs so they re-render from the refreshed HTML.
-    for card in ("indices", "news"):
+    for name in ("daily_card.png", "card_daily.png", "card_indices.png", "card_news.png"):
         for folder in (SAMC_OUTPUT, SAMC_OUTPUTS):
-            img = folder / f"card_{card}.png"
+            img = folder / name
             if img.exists():
                 try:
                     img.unlink()
                 except Exception:
                     pass
     return True
+
+# Auto re-render existing cards on startup to sync compliance & template updates
+try:
+    _samc_rerender_cards()
+except Exception as _e:
+    pass
 
 
 def _samc_load_config() -> dict:
@@ -282,6 +282,10 @@ def _samc_apply_overrides(data: dict, cfg: dict) -> dict:
 def _samc_generate_html() -> dict:
     t0 = time.time()
     data = samc_fetch.fetch_all()
+    try:
+        db_helper.sync_db_to_json()
+    except Exception:
+        pass
     cfg = _samc_load_config()
     data = _samc_apply_overrides(data, cfg)
     duration = time.time() - t0
